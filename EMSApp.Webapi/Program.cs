@@ -15,12 +15,6 @@ namespace EMSApp.Webapi
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls(new string[]
-                    {
-                        "http://localhost:5001",
-                        "http://localhost:5002",
-                        "http://localhost:5003"
-                    });
                 });
     }
 }

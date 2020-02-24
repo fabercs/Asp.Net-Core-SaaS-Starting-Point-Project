@@ -1,12 +1,11 @@
-using EMSApp.Core.Interfaces;
-using EMSApp.Infrastructure.Data;
+using EMSApp.Core.DependencyInjection;
 using EMSApp.Infrastructure.Data.DbContextConfig;
-using EMSApp.Infrastructure.Data.MultiTenancy;
+using EMSApp.Infrastructure.Data.DependencyInjection;
+using EMSApp.Infrastructure.DependencyInjection;
+using EMSApp.Webapi.DependencyInjection;
 using EMSApp.Webapi.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,14 +26,13 @@ namespace EMSApp.Webapi
         {
             services.AddControllers();
             services.AddHttpContextAccessor();
-            services.AddDbContext<EMSAppDbContext>(options => {
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); 
-            });
+            
 
+            services.AddCoreDependencies();
+            services.AddInfrastructureDependencies();
+            services.AddInfraDataDependencies(Configuration);
+            services.AddApiDependencies();
 
-            services.AddScoped<ITenantProvider, SqlServerTenantProvider>();
-            services.AddScoped<ICurrentTenantContextAccessor, CurrentTenantContextAccessor>();
-            services.AddScoped(typeof(IDesignTimeDbContextFactory<EMSAppDbContext>), typeof(EMSAppDbContextFactory));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,9 +45,9 @@ namespace EMSApp.Webapi
             app.UseRouting();
             app.UseAuthorization();
 
-            app.UseMissingTenantMiddleware("http://localhost:8999");
+            app.MissingTenantMiddleware("http://localhost:8999");
 
-            app.UseSetTenantContext();
+            app.SetTenantContextMiddleware();
 
             app.UseEnsureMigrations(); //TODO: refactor for development env.
 

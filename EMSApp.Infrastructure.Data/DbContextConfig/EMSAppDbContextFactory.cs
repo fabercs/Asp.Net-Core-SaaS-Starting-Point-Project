@@ -28,7 +28,7 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
 
             var builder = new DbContextOptionsBuilder<EMSAppDbContext>();
 
-            if (args.Length > 1)
+            if (args != null && args.Length > 1)
             {
                 var connectionString = args[1];
                 var tenantId = args[0];
@@ -38,12 +38,13 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
                     _logger.LogError($"ConnectionString is not found for {tenantId}");
                     return null;
                 }
-                builder.UseSqlServer(connectionString);
+                builder.UseNpgsql(connectionString);
             }
             else
             {
-                var connString = configuration.GetConnectionString("TenantDevConnectionString"); //dev environment, add-migration,remove-migration cases..
-                builder.UseSqlServer(connString);
+                var connString = configuration.GetConnectionString("TenantDevConnectionString"); 
+                //dev environment, add-migration,remove-migration cases..
+                builder.UseNpgsql(connString);
             }
 
             return new EMSAppDbContext(builder.Options);

@@ -1,20 +1,22 @@
-﻿using EMSApp.Infrastructure.Data.DbContextConfig;
+﻿using AutoMapper;
 using EMSApp.Infrastructure.Data.MultiTenancy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+using Microsoft.Extensions.Logging;
 
 namespace EMSApp.Webapi.Controllers
 {
     [ApiController]
-    public class BaseController : ControllerBase
+    public class BaseController<T> : ControllerBase
     {
-        protected EMSAppDbContext DbContext { get; set; }
-        protected TenantContext CurrentTenantContext { get; set; }
-        public BaseController(IServiceProvider provider)
-        {
-            DbContext ??= provider.GetService<EMSAppDbContext>();
-            CurrentTenantContext ??= provider.GetService<ICurrentTenantContextAccessor>()?.CurrentTenant;
-        }
+        private TenantContext _currentTenantContext { get; set; }
+        private ILogger<T> _logger;
+        private IMapper _mapper;
+        protected ILogger<T> Logger => _logger ?? (_logger = HttpContext.RequestServices.GetService<ILogger<T>>());
+        protected IMapper Mapper => _mapper ?? (_mapper = HttpContext.RequestServices.GetService<IMapper>());
+        protected TenantContext TenantContext => _currentTenantContext ?? 
+            (_currentTenantContext = HttpContext.RequestServices.GetService<TenantContext>());
+
+        public BaseController(){}
     }
 }

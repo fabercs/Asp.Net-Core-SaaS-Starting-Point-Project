@@ -5,17 +5,18 @@ using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Middlewares
 {
-    public class SetTenantContext
+    public class TenantContextMiddleware
     {
         private readonly RequestDelegate _next;
-        public SetTenantContext(RequestDelegate next)
+        public TenantContextMiddleware(RequestDelegate next)
         {
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, ITenantProvider provider, ICurrentTenantContextAccessor tenantContextAccessor)
+        public async Task InvokeAsync(HttpContext context, ITenantProvider provider, 
+            ICurrentTenantContextAccessor tenantContextAccessor)
         {
-            var tenant = provider.GetCurrentTenant();
+            var tenant = await provider.GetCurrentTenant();
             
             try
             {

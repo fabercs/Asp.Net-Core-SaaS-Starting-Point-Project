@@ -1,15 +1,10 @@
-﻿using EMSApp.Infrastructure.Data;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace EMSApp.Webapi.Controllers
 {
     [Route("api/[controller]")]
-    public class HomeController : BaseController
+    public class HomeController : BaseController<HomeController>
     {
-        public HomeController(IServiceProvider serviceProvider) : base(serviceProvider)
-        {
-        }
         [HttpGet]
         public IActionResult Get()
         {

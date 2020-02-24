@@ -1,12 +1,13 @@
 ﻿using EMSApp.Core.Entities;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EMSApp.Core.Interfaces
 {
     public interface ITenantProvider
     {
-        Tenant GetCurrentTenant();
+        Task<Tenant> GetCurrentTenant();
 
-        List<Tenant> GetTenants();
+        Task<List<Tenant>> GetTenants();
     }
 }
