@@ -21,10 +21,14 @@ namespace EMSApp.Infrastructure.Data.DependencyInjection
                 opt.UseNpgsql(configuration.GetConnectionString("HostConnectionString"));
             });
             serviceCollection.AddDbContext<EMSAppDbContext>();
-            serviceCollection.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opt=> {
+            
+            serviceCollection.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opt =>
+            {
                 opt.SignIn.RequireConfirmedEmail = true;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequireUppercase = false;
             })
-            .AddEntityFrameworkStores<EMSAppDbContext>()
+            .AddEntityFrameworkStores<EMSHostDbContext>()
             .AddDefaultTokenProviders();
 
             serviceCollection.AddScoped<ITenantProvider, SqlServerTenantProvider>();

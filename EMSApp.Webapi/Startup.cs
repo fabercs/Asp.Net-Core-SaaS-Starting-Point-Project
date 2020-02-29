@@ -26,6 +26,7 @@ namespace EMSApp.Webapi
         {
             services.AddControllers();
             services.AddHttpContextAccessor();
+            services.AddMemoryCache();
             
 
             services.AddCoreDependencies();
@@ -43,9 +44,10 @@ namespace EMSApp.Webapi
                 app.UseDeveloperExceptionPage();
             }
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.MissingTenantMiddleware("http://localhost:8999");
+            //app.MissingTenantMiddleware("http://localhost:8999");
 
             app.SetTenantContextMiddleware();
 

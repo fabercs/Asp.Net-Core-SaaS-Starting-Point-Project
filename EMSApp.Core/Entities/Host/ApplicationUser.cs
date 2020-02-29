@@ -9,15 +9,17 @@ namespace EMSApp.Core.Entities
     [Table("ApplicationUser")]
     public class ApplicationUser : IdentityUser<Guid>, IEntity<Guid>
     {
-        private DateTime? createdOn;
-        public DateTime CreatedOn { get => createdOn ?? DateTime.Now; set => createdOn = value; }
+        public DateTime CreatedOn { get; set; } = DateTime.Now;
         public DateTime? ModifedOn { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? ModifiedBy { get; set; }
         public string Fullname { get; set; }
-
         [Timestamp]
         public byte[] Version { get; set; }
-        object IEntity.Id { get => this.Id; set { } }
+        object IEntity.Id { get => Id; set { } }
+        public Guid TenantId { get; set; }
+        
+        [ForeignKey(nameof(TenantId))]
+        public Tenant Tenant { get; set; }
     }
 }

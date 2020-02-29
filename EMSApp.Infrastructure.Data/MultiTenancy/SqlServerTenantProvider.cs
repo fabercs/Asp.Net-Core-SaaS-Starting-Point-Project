@@ -45,7 +45,7 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
         public async Task<Tenant> GetCurrentTenant()
         {
             await LoadTenantsFromSqlServer();
-            var host = _httpContextAccessor.HttpContext.Request.Host.Value;
+            var host = _httpContextAccessor.HttpContext.Request.Headers["X-Tenant"].ToString();
             var tenant = _tenants.FirstOrDefault(t => t.Host.ToLower() == host?.ToLower());
             if (tenant != null)
             {

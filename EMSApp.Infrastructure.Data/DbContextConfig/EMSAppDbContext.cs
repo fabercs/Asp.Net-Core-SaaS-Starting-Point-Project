@@ -1,8 +1,6 @@
 ﻿using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
 using EMSApp.Infrastructure.Data.Helper;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
@@ -11,11 +9,12 @@ using System.Reflection;
 
 namespace EMSApp.Infrastructure.Data.DbContextConfig
 {
-    public class EMSAppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+    public class EMSAppDbContext : DbContext
     {
         private readonly Tenant _tenant;
 
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Fair> Fairs { get; set; }
+            
 
         private static MethodInfo ConfigureGlobalFiltersMethodInfo;
 

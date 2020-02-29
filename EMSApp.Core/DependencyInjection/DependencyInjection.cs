@@ -7,8 +7,8 @@ namespace EMSApp.Core.DependencyInjection
     {
         public static IServiceCollection AddCoreDependencies(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IAccountService, AccountService>();
             serviceCollection.AddScoped<IAuthService, AuthService>();
+            serviceCollection.AddScoped<IEncryptionService, EncryptionService>();
 
             return serviceCollection;
         }

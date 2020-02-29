@@ -12,34 +12,37 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace EMSApp.Infrastructure.Auth
 {
     public class JwtAuthResponseFactory : IJwtAuthResponseFactory
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
-        private readonly JwtSettings _jwtSettings;
         private readonly ITokenFactory _tokenFactory;
+        private readonly IHostRepository _hostRepository;
 
-        public JwtAuthResponseFactory(IOptions<JwtSettings> jwtSettings,
+        public JwtAuthResponseFactory(IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole<Guid>> roleManager,
             ITokenFactory tokenFactory,
-            IServiceProvider serviceProvider
+            IHostRepository hostRepository
             )
         {
-            _serviceProvider = serviceProvider;
+            _configuration = configuration;
             _userManager = userManager;
             _roleManager = roleManager;
-            _jwtSettings = jwtSettings.Value;
             _tokenFactory = tokenFactory;
+            _hostRepository = hostRepository;
         }
         public async Task<AuthResponse> GenerateAuthResponseForUser(ApplicationUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var secretKey = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+            var secretKey = _configuration.GetSection("JwtSettings")["SecretKey"];
+            var tokenLifeTime = _configuration.GetSection("JwtSettings")["TokenLifeTime"];
+            var secretKeyBytes = Encoding.ASCII.GetBytes(secretKey);
 
             var claims = new List<Claim>
             {
@@ -73,9 +76,9 @@ namespace EMSApp.Infrastructure.Auth
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifeTime),
+                Expires = DateTime.UtcNow.Add(TimeSpan.Parse(tokenLifeTime)),
                 SigningCredentials =
-                new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
+                new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -89,9 +92,8 @@ namespace EMSApp.Infrastructure.Auth
                 ExpiresOn = DateTime.UtcNow.AddMonths(1)
             };
 
-            var appRepository = _serviceProvider.GetService<IAppRepository>();
-             appRepository.Create(refreshToken);
-            await appRepository.SaveAsync();
+            _hostRepository.Create(refreshToken);
+            await _hostRepository.SaveAsync();
 
             return new AuthResponse { 
                 AccessToken = new AccessToken(tokenHandler.WriteToken(token), 120),

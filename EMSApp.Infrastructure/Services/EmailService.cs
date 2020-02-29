@@ -23,6 +23,7 @@ namespace EMSApp.Infrastructure
                 var from = new EmailAddress("info@exms.io");
                 var to = new EmailAddress(email);
                 var msg = MailHelper.CreateSingleEmail(from, to, subject, message, null);
+                
                 await client.SendEmailAsync(msg);
             }
             catch(Exception ex)

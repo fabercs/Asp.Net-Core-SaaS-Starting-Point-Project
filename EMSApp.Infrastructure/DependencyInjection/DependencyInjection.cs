@@ -11,6 +11,7 @@ namespace EMSApp.Infrastructure.DependencyInjection
             serviceCollection.AddScoped<ITokenFactory, TokenFactory>();
             serviceCollection.AddScoped<IEmailService, EmailService>();
             serviceCollection.AddScoped<IJwtAuthResponseFactory, JwtAuthResponseFactory>();
+            
 
             return serviceCollection;
         }
