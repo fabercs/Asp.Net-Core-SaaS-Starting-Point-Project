@@ -76,7 +76,7 @@ namespace EMSApp.Infrastructure.Auth
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.Add(TimeSpan.Parse(tokenLifeTime)),
+                Expires = DateTime.Now.Add(TimeSpan.Parse(tokenLifeTime)),
                 SigningCredentials =
                 new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -89,14 +89,15 @@ namespace EMSApp.Infrastructure.Auth
                 Token = newToken,
                 JwtId = token.Id,
                 ApplicationUserId = user.Id,
-                ExpiresOn = DateTime.UtcNow.AddMonths(1)
+                ExpiresOn = DateTime.Now.AddMonths(1)
             };
 
             _hostRepository.Create(refreshToken);
             await _hostRepository.SaveAsync();
 
             return new AuthResponse { 
-                AccessToken = new AccessToken(tokenHandler.WriteToken(token), 120),
+                AccessToken = new AccessToken(tokenHandler.WriteToken(token), 
+                    (int)TimeSpan.Parse(tokenLifeTime).TotalMinutes),
                 RefreshToken = refreshToken.Token
             };
         }

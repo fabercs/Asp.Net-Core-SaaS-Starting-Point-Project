@@ -1,4 +1,5 @@
 ﻿using EMSApp.Core.DTO.Requests;
+using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,6 +47,7 @@ namespace EMSApp.Webapi.Controllers
         {
             if (tcid == Guid.Empty)
                 return BadRequest($"{nameof(tcid)} is not valid");
+
             if (string.IsNullOrWhiteSpace(token))
                 return BadRequest($"{nameof(token)} is not valid");
 
@@ -75,6 +77,21 @@ namespace EMSApp.Webapi.Controllers
             };
             return Ok(response.Data);
 
+        }
+
+        [HttpPost("refreshtoken")]
+        public async Task<IActionResult> RefreshToken([FromBody]ExchangeTokenRequest tokenRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage)));
+            }
+            Response<AuthResponse> response = await _authService.ExchangeRefreshToken(tokenRequest);
+            if (!response.Success)
+            {
+                return BadRequest(response.Errors);
+            };
+            return Ok(response.Data);
         }
     }
 }

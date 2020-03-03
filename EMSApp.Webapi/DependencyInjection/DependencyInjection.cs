@@ -1,12 +1,55 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
+using AutoMapper;
+using System.Text;
+using System;
 
 namespace EMSApp.Webapi.DependencyInjection
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApiDependencies(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddApiDependencies(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            
+            serviceCollection.AddAutoMapper(Assembly.GetExecutingAssembly());
+            serviceCollection.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling =
+                Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+            var secretKey = configuration.GetSection("JwtSettings")["SecretKey"];
+
+            serviceCollection.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(opt => {
+                opt.RequireHttpsMetadata = false;
+                opt.SaveToken = true;
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(secretKey)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    RequireExpirationTime = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireExpirationTime = false,
+                ValidateLifetime = true
+            };
+
+            serviceCollection.AddSingleton(tokenValidationParameters);
 
             return serviceCollection;
         }

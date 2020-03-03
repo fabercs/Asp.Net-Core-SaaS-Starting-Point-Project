@@ -10,10 +10,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace EMSApp.Core.Services
 {
@@ -22,6 +23,7 @@ namespace EMSApp.Core.Services
         Task<Response<AuthResponse>> Authenticate(LoginRequest loginRequest);
         Task<Response<RegisterResponse>> Register(RegisterRequest resgisterRequest);
         Task<Response<bool>> Verify(Guid tcid, string token);
+        Task<Response<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest);
     }
     public class AuthService : IAuthService
     {
@@ -29,6 +31,7 @@ namespace EMSApp.Core.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IJwtAuthResponseFactory _jwtTokenFactory;
+        private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IHostRepository _hostRepository;
         private readonly IEmailService _emailService;
         private readonly IEncryptionService _encryptionService;
@@ -39,6 +42,7 @@ namespace EMSApp.Core.Services
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IJwtAuthResponseFactory jwtTokenFactory,
+            TokenValidationParameters tokenValidationParameters,
             IHostRepository hostRepository)
         {
             _emailService = emailService;
@@ -47,6 +51,7 @@ namespace EMSApp.Core.Services
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtTokenFactory = jwtTokenFactory;
+            _tokenValidationParameters = tokenValidationParameters;
             _hostRepository = hostRepository;
         }
         public async Task<Response<RegisterResponse>> Register(RegisterRequest registerRequest)
@@ -162,6 +167,99 @@ namespace EMSApp.Core.Services
             return response;
         }
 
+        public async Task<Response<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest)
+        {
+            var response = new Response<AuthResponse>();
+
+            var refreshToken = _hostRepository.GetFirst<RefreshToken>(r => r.Token == tokenRequest.RefreshToken);
+
+            ClaimsPrincipal principal = GetPrincipalFromToken(tokenRequest.AccessToken);
+
+            if (principal == null)
+            {
+                response.Errors.Add(new Error { Description = "Invalid token" });
+            }
+
+            var expiryDate = long.Parse(principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
+            var expiryDateTimeLocal = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local).AddSeconds(expiryDate);
+            var jti = principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
+
+            if (expiryDateTimeLocal > DateTime.Now)
+            {
+                response.Errors.Add(new Error { Description = "The access token has not been expired yet" });
+            }
+
+            if (refreshToken == null)
+            {
+                response.Errors.Add(new Error { Description = "Refresh token does not exist" });
+            }
+
+            if (refreshToken.Invalidated)
+            {
+                response.Errors.Add(new Error { Description = "Token is not valid" });
+            }
+
+            if (refreshToken.ExpiresOn < DateTime.Now)
+            {
+                refreshToken.Invalidated = true;
+                _hostRepository.Update(refreshToken);
+                await _hostRepository.SaveAsync();
+                response.Errors.Add(new Error { Description = "Refresh token is expired" });
+            }
+
+            if (refreshToken.JwtId != jti)
+            {
+                response.Errors.Add(new Error { Description = "This refresh token does not match this JWT" });
+            }
+
+            var user = await _userManager.FindByIdAsync(refreshToken.ApplicationUserId.ToString());
+            if (user != null)
+            {
+                var tokens = await _jwtTokenFactory.GenerateAuthResponseForUser(user);
+                response.Success = true;
+                response.Data = tokens;
+
+                refreshToken.Invalidated = true;
+                _hostRepository.Update(refreshToken);
+                await _hostRepository.SaveAsync();
+
+            }
+            else
+            {
+                response.Errors.Add(new Error { Description = "User not found" });
+            }
+            return response;
+        }
+
+        private ClaimsPrincipal GetPrincipalFromToken(string accessToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var tokenValidationParam = _tokenValidationParameters.Clone();
+                tokenValidationParam.ValidateLifetime = false;
+                var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParam, out var validatedToken);
+                if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
+                {
+                    return null;
+                }
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+        {
+            return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
+                   jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
+                       StringComparison.InvariantCultureIgnoreCase);
+        }
+
+
         #region Helpers
 
         private async Task CreateTenantResources(string email, string password)
@@ -190,7 +288,7 @@ namespace EMSApp.Core.Services
                 EmailConfirmed = tenantContact.EmailConfirmed,
                 Fullname = $"{tenantContact.Name} {tenantContact.Surname}",
                 TenantId = tenant.Id,
-                
+
             };
             var result = await _userManager.CreateAsync(applicationUser, _encryptionService.Decrypt(tenantContact.PasswordHash));
             if (result.Succeeded)
@@ -233,14 +331,6 @@ namespace EMSApp.Core.Services
         {
             var uid = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
             return $"{appname}_{uid.ToLower()}";
-        }
-        private string GetHash(string password)
-        {
-            using var sha256 = SHA256.Create();
-            // Send a sample text to hash.  
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            // Get the hashed string.  
-            return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
         }
         private async Task ComposeEmailVerificationEmail(Tenant tenant)
         {

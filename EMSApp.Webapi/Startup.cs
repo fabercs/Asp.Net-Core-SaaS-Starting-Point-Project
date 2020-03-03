@@ -32,7 +32,7 @@ namespace EMSApp.Webapi
             services.AddCoreDependencies();
             services.AddInfrastructureDependencies();
             services.AddInfraDataDependencies(Configuration);
-            services.AddApiDependencies();
+            services.AddApiDependencies(Configuration);
 
         }
 

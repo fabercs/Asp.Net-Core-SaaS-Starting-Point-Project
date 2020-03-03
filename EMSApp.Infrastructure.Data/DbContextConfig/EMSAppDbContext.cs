@@ -20,9 +20,7 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
 
         public EMSAppDbContext(DbContextOptions<EMSAppDbContext> options, ITenantProvider tenantProvider) : base(options)
         {
-            ChangeTracker.LazyLoadingEnabled = false;
             _tenant = tenantProvider.GetCurrentTenant().Result;
-           
         }
         public EMSAppDbContext(DbContextOptions<EMSAppDbContext> options) : base(options)
         {
@@ -34,7 +32,10 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
             if (!optionsBuilder.IsConfigured)
             {
                 if (_tenant != null)
+                {
                     optionsBuilder.UseNpgsql(_tenant?.ConnectionString);
+                    //ChangeTracker.LazyLoadingEnabled = false;
+                }
             }
 
             base.OnConfiguring(optionsBuilder);
