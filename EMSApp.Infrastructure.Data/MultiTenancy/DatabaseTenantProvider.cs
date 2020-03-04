@@ -2,7 +2,6 @@
 using EMSApp.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EMSApp.Infrastructure.Data.MultiTenancy
 {
-    public class SqlServerTenantProvider : ITenantProvider
+    public class DatabaseTenantProvider : ITenantProvider
     {
         private static List<Tenant> _tenants = new List<Tenant>();
 
@@ -19,15 +18,13 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
         private readonly IHostRepository _hostRepository;
         private readonly IMemoryCache _memoryCahce;
 
-        public SqlServerTenantProvider(IConfiguration configuration, 
-            IHostRepository hostRepository,
+        public DatabaseTenantProvider (IHostRepository hostRepository,
             IMemoryCache memoryCache,
             IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
             _hostRepository = hostRepository;
             _memoryCahce = memoryCache;
-            
         }
 
         private async Task LoadTenantsFromSqlServer()
@@ -35,7 +32,7 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
             var tenants = await _memoryCahce.GetOrCreateAsync("tenants", async t =>
             {
                 t.SetSlidingExpiration(TimeSpan.FromMinutes(30));
-                var list = await _hostRepository.GetAllAsync<Tenant>();
+                var list = await _hostRepository.GetAsync<Tenant>(t => t.ResourcesCreated);
                 return list.ToList();
             });
             

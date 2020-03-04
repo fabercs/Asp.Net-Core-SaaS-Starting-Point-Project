@@ -34,7 +34,6 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
                 if (_tenant != null)
                 {
                     optionsBuilder.UseNpgsql(_tenant?.ConnectionString);
-                    //ChangeTracker.LazyLoadingEnabled = false;
                 }
             }
 

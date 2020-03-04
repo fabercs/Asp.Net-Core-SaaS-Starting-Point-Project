@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EMSApp.Core.Services
 {
@@ -33,6 +34,7 @@ namespace EMSApp.Core.Services
         private readonly IJwtAuthResponseFactory _jwtTokenFactory;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IHostRepository _hostRepository;
+        private readonly IMemoryCache _memoryCache;
         private readonly IEmailService _emailService;
         private readonly IEncryptionService _encryptionService;
 
@@ -43,7 +45,8 @@ namespace EMSApp.Core.Services
             SignInManager<ApplicationUser> signInManager,
             IJwtAuthResponseFactory jwtTokenFactory,
             TokenValidationParameters tokenValidationParameters,
-            IHostRepository hostRepository)
+            IHostRepository hostRepository,
+            IMemoryCache memoryCache)
         {
             _emailService = emailService;
             _encryptionService = encryptionService;
@@ -53,10 +56,20 @@ namespace EMSApp.Core.Services
             _jwtTokenFactory = jwtTokenFactory;
             _tokenValidationParameters = tokenValidationParameters;
             _hostRepository = hostRepository;
+            _memoryCache = memoryCache;
         }
         public async Task<Response<RegisterResponse>> Register(RegisterRequest registerRequest)
         {
             var response = new Response<RegisterResponse>();
+
+            var existingUser = _hostRepository.Get<Tenant>(t => t.Responsibles.Any(r => r.Email == registerRequest.Email)
+                    , includeProperties: "Responsibles").FirstOrDefault();
+
+            if (existingUser != null)
+            {
+                response.Errors.Add(new Error { Description = "This email has already been used" });
+                return response;
+            }
 
             var tenant = new Tenant
             {
@@ -105,35 +118,45 @@ namespace EMSApp.Core.Services
         public async Task<Response<bool>> Verify(Guid tcid, string token)
         {
             var response = new Response<bool>();
-            var tenantContact = await _hostRepository.GetFirstAsync<TenantContact>(tc => tc.Id == tcid,
+
+            try
+            {
+                var tenantContact = await _hostRepository.GetFirstAsync<TenantContact>(tc => tc.Id == tcid,
                 includeProperties: "Tokens");
 
-            if (tenantContact == null)
+                if (tenantContact == null)
+                {
+                    response.Errors.Add(new Error { Description = "Tenant contact not found" });
+                    return response;
+                }
+
+                var validToken = tenantContact.Tokens.FirstOrDefault(t => t.Name == "EmailConfirmationToken" && t.Valid);
+
+                if (validToken == null)
+                {
+                    response.Errors.Add(new Error { Description = "No valid token found" });
+                    return response;
+                }
+
+                var validDurationPassed = validToken.CreatedOn.AddHours(24) < DateTime.Now;
+                if (validDurationPassed)
+                {
+                    response.Errors.Add(new Error { Description = "Token has expired" });
+                    return response;
+                }
+                validToken.Valid = false;
+                tenantContact.EmailConfirmed = true;
+                _hostRepository.Update(tenantContact);
+                await _hostRepository.SaveAsync();
+
+                await CreateTenantResources(tenantContact.Email, tenantContact.PasswordHash);
+
+            }
+            catch (Exception ex)
             {
-                response.Errors.Add(new Error { Description = "Tenant contact not found" });
+                response.Errors.Add(new Error { Description = ex.Message });
                 return response;
             }
-
-            var validToken = tenantContact.Tokens.FirstOrDefault(t => t.Name == "EmailConfirmationToken" && t.Valid);
-
-            if (validToken == null)
-            {
-                response.Errors.Add(new Error { Description = "No valid token found" });
-                return response;
-            }
-
-            var validDurationPassed = validToken.CreatedOn.AddHours(24) < DateTime.Now;
-            if (validDurationPassed)
-            {
-                response.Errors.Add(new Error { Description = "Token valid duration has passed" });
-                return response;
-            }
-            validToken.Valid = false;
-            tenantContact.EmailConfirmed = true;
-            _hostRepository.Update(tenantContact);
-            await _hostRepository.SaveAsync();
-
-            await CreateTenantResources(tenantContact.Email, tenantContact.PasswordHash);
 
             response.Data = true;
             response.Success = true;
@@ -181,22 +204,25 @@ namespace EMSApp.Core.Services
             }
 
             var expiryDate = long.Parse(principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
-            var expiryDateTimeLocal = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local).AddSeconds(expiryDate);
+            var expiryDateTimeLocal = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(expiryDate).ToLocalTime();
             var jti = principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
 
             if (expiryDateTimeLocal > DateTime.Now)
             {
                 response.Errors.Add(new Error { Description = "The access token has not been expired yet" });
+                return response;
             }
 
             if (refreshToken == null)
             {
                 response.Errors.Add(new Error { Description = "Refresh token does not exist" });
+                return response;
             }
 
             if (refreshToken.Invalidated)
             {
                 response.Errors.Add(new Error { Description = "Token is not valid" });
+                return response;
             }
 
             if (refreshToken.ExpiresOn < DateTime.Now)
@@ -205,11 +231,13 @@ namespace EMSApp.Core.Services
                 _hostRepository.Update(refreshToken);
                 await _hostRepository.SaveAsync();
                 response.Errors.Add(new Error { Description = "Refresh token is expired" });
+                return response;
             }
 
             if (refreshToken.JwtId != jti)
             {
                 response.Errors.Add(new Error { Description = "This refresh token does not match this JWT" });
+                return response;
             }
 
             var user = await _userManager.FindByIdAsync(refreshToken.ApplicationUserId.ToString());
@@ -227,36 +255,9 @@ namespace EMSApp.Core.Services
             else
             {
                 response.Errors.Add(new Error { Description = "User not found" });
+                return response;
             }
             return response;
-        }
-
-        private ClaimsPrincipal GetPrincipalFromToken(string accessToken)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            try
-            {
-                var tokenValidationParam = _tokenValidationParameters.Clone();
-                tokenValidationParam.ValidateLifetime = false;
-                var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParam, out var validatedToken);
-                if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
-                {
-                    return null;
-                }
-                return principal;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
-        {
-            return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
-                   jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
-                       StringComparison.InvariantCultureIgnoreCase);
         }
 
 
@@ -302,7 +303,24 @@ namespace EMSApp.Core.Services
                 using var command = new NpgsqlCommand($"{dbScript}", connection);
                 await connection.OpenAsync();
                 await command.ExecuteNonQueryAsync();
+
+                await ReloadTenantsToCahce();
             }
+            else
+            {
+
+            }
+        }
+
+        private async Task ReloadTenantsToCahce()
+        {
+            _memoryCache.Remove("tenants");
+            await _memoryCache.GetOrCreateAsync("tenants", async t =>
+            {
+                t.SetSlidingExpiration(TimeSpan.FromMinutes(30));
+                var list = await _hostRepository.GetAsync<Tenant>(t => t.ResourcesCreated);
+                return list.ToList();
+            });
         }
 
         /// <summary>
@@ -342,6 +360,32 @@ namespace EMSApp.Core.Services
 
             await _emailService.SendEmailAsync(tenant.Responsibles.FirstOrDefault()?.Email, "ExMS Verify your email",
                 message);
+        }
+        private ClaimsPrincipal GetPrincipalFromToken(string accessToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var tokenValidationParam = _tokenValidationParameters.Clone();
+                tokenValidationParam.ValidateLifetime = false;
+                var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParam, out var validatedToken);
+                if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
+                {
+                    return null;
+                }
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+        {
+            return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
+                   jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
+                       StringComparison.InvariantCultureIgnoreCase);
         }
 
         #endregion Helpers

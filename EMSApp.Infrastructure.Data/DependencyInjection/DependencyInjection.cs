@@ -31,7 +31,7 @@ namespace EMSApp.Infrastructure.Data.DependencyInjection
             .AddEntityFrameworkStores<EMSHostDbContext>()
             .AddDefaultTokenProviders();
 
-            serviceCollection.AddScoped<ITenantProvider, SqlServerTenantProvider>();
+            serviceCollection.AddScoped<ITenantProvider, DatabaseTenantProvider>();
             serviceCollection.AddScoped<ICurrentTenantContextAccessor, CurrentTenantContextAccessor>();
             serviceCollection.AddScoped(typeof(IDesignTimeDbContextFactory<DbContext>), typeof(EMSAppDbContextFactory));
             serviceCollection.AddScoped(typeof(IAppRepository), typeof(EfRepository<EMSAppDbContext>));
