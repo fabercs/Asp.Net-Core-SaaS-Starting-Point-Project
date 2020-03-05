@@ -1,5 +1,6 @@
 ﻿using EMSApp.Core.Interfaces;
 using EMSApp.Infrastructure.Auth;
+using EMSApp.Infrastructure.Providers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EMSApp.Infrastructure.DependencyInjection
@@ -11,7 +12,7 @@ namespace EMSApp.Infrastructure.DependencyInjection
             serviceCollection.AddScoped<ITokenFactory, TokenFactory>();
             serviceCollection.AddScoped<IEmailService, EmailService>();
             serviceCollection.AddScoped<IJwtAuthResponseFactory, JwtAuthResponseFactory>();
-            
+            serviceCollection.AddScoped<IErrorProvider, LocalizedErrorProvider>();
 
             return serviceCollection;
         }

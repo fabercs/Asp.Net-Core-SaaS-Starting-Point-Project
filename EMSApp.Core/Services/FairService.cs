@@ -1,5 +1,6 @@
 ﻿using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,11 +12,12 @@ namespace EMSApp.Core.Services
         Task<List<Fair>> GetAll();
     }
 
-    public class FairService : IFairService
+    public class FairService : BaseService, IFairService
     {
         private readonly IAppRepository _appRepository;
 
-        public FairService(IAppRepository appRepository)
+        public FairService(IAppRepository appRepository,
+            IServiceProvider provider) : base(provider)
         {
             _appRepository = appRepository;
         }

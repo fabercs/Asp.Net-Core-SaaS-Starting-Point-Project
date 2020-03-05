@@ -27,7 +27,7 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
             _memoryCahce = memoryCache;
         }
 
-        private async Task LoadTenantsFromSqlServer()
+        private async Task LoadTenantsFromDatabase()
         {
             var tenants = await _memoryCahce.GetOrCreateAsync("tenants", async t =>
             {
@@ -41,7 +41,7 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
 
         public async Task<Tenant> GetCurrentTenant()
         {
-            await LoadTenantsFromSqlServer();
+            await LoadTenantsFromDatabase();
             var host = _httpContextAccessor.HttpContext.Request.Headers["X-Tenant"].ToString();
             var tenant = _tenants.FirstOrDefault(t => t.Host.ToLower() == host?.ToLower());
             if (tenant != null)
@@ -53,7 +53,7 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
 
         public async Task<List<Tenant>> GetTenants()
         {
-            await LoadTenantsFromSqlServer();
+            await LoadTenantsFromDatabase();
             return _tenants;
         } 
     }

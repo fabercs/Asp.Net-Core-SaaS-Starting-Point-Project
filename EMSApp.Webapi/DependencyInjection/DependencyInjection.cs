@@ -6,6 +6,12 @@ using System.Reflection;
 using AutoMapper;
 using System.Text;
 using System;
+using Microsoft.AspNetCore.Builder;
+using System.Globalization;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Localization;
+using EMSApp.Core.Interfaces;
+using EMSApp.Webapi.Localization;
 
 namespace EMSApp.Webapi.DependencyInjection
 {
@@ -50,6 +56,23 @@ namespace EMSApp.Webapi.DependencyInjection
             };
 
             serviceCollection.AddSingleton(tokenValidationParameters);
+
+            serviceCollection.Configure<RequestLocalizationOptions>(options => {
+                var supportedCultures = new List<CultureInfo> {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("tr-TR")
+                };
+                options.DefaultRequestCulture = new RequestCulture("tr-TR");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+
+                options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
+                options.RequestCultureProviders.Insert(1, new QueryStringRequestCultureProvider());
+                options.RequestCultureProviders.Insert(2, new CookieRequestCultureProvider());
+
+            });
+
+            serviceCollection.AddScoped<ILocalizationService, LocalizationService>();
 
             return serviceCollection;
         }

@@ -18,7 +18,7 @@ namespace EMSApp.Webapi.Middlewares
         {
             if(tenantProvider.GetCurrentTenant() == null)
             {
-                
+                context.Response.Redirect(_missingTenantUrl);
             }
             await _next(context);
 

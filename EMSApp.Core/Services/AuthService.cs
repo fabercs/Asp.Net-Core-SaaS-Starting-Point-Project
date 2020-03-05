@@ -26,7 +26,7 @@ namespace EMSApp.Core.Services
         Task<Response<bool>> Verify(Guid tcid, string token);
         Task<Response<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest);
     }
-    public class AuthService : IAuthService
+    public class AuthService : BaseService, IAuthService
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -35,6 +35,7 @@ namespace EMSApp.Core.Services
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IHostRepository _hostRepository;
         private readonly IMemoryCache _memoryCache;
+        private readonly IErrorProvider _EP;
         private readonly IEmailService _emailService;
         private readonly IEncryptionService _encryptionService;
 
@@ -46,7 +47,9 @@ namespace EMSApp.Core.Services
             IJwtAuthResponseFactory jwtTokenFactory,
             TokenValidationParameters tokenValidationParameters,
             IHostRepository hostRepository,
-            IMemoryCache memoryCache)
+            IErrorProvider errorProvider,
+            IServiceProvider provider,
+            IMemoryCache memoryCache) : base(provider)
         {
             _emailService = emailService;
             _encryptionService = encryptionService;
@@ -57,17 +60,24 @@ namespace EMSApp.Core.Services
             _tokenValidationParameters = tokenValidationParameters;
             _hostRepository = hostRepository;
             _memoryCache = memoryCache;
+            _EP = errorProvider;
         }
         public async Task<Response<RegisterResponse>> Register(RegisterRequest registerRequest)
         {
             var response = new Response<RegisterResponse>();
+
+            if(registerRequest.Password != registerRequest.PasswordAgain)
+            {
+                response.Errors.Add(_EP.GetError("register_password_mismatch"));
+                return response;
+            }
 
             var existingUser = _hostRepository.Get<Tenant>(t => t.Responsibles.Any(r => r.Email == registerRequest.Email)
                     , includeProperties: "Responsibles").FirstOrDefault();
 
             if (existingUser != null)
             {
-                response.Errors.Add(new Error { Description = "This email has already been used" });
+                response.Errors.Add(_EP.GetError("register_email_in_use"));
                 return response;
             }
 
@@ -126,7 +136,7 @@ namespace EMSApp.Core.Services
 
                 if (tenantContact == null)
                 {
-                    response.Errors.Add(new Error { Description = "Tenant contact not found" });
+                    response.Errors.Add(_EP.GetError("verify_no_tenant"));
                     return response;
                 }
 
@@ -134,14 +144,14 @@ namespace EMSApp.Core.Services
 
                 if (validToken == null)
                 {
-                    response.Errors.Add(new Error { Description = "No valid token found" });
+                    response.Errors.Add(_EP.GetError("no_valid_token"));
                     return response;
                 }
 
                 var validDurationPassed = validToken.CreatedOn.AddHours(24) < DateTime.Now;
                 if (validDurationPassed)
                 {
-                    response.Errors.Add(new Error { Description = "Token has expired" });
+                    response.Errors.Add(_EP.GetError("token_expired"));
                     return response;
                 }
                 validToken.Valid = false;
@@ -154,7 +164,8 @@ namespace EMSApp.Core.Services
             }
             catch (Exception ex)
             {
-                response.Errors.Add(new Error { Description = ex.Message });
+                //TODO:log error
+                response.Errors.Add(_EP.GetError("server_error"));
                 return response;
             }
 
@@ -179,12 +190,12 @@ namespace EMSApp.Core.Services
                 }
                 else
                 {
-                    response.Errors.Add(new Error { Code = "auth_failure", Description = "invalid email or password" });
+                    response.Errors.Add(_EP.GetError("auth_invalid_user_pass"));
                 }
             }
             else
             {
-                response.Errors.Add(new Error { Code = "auth_failure", Description = "user not found" });
+                response.Errors.Add(_EP.GetError("auth_user_not_found"));
             }
 
             return response;
@@ -200,7 +211,7 @@ namespace EMSApp.Core.Services
 
             if (principal == null)
             {
-                response.Errors.Add(new Error { Description = "Invalid token" });
+                response.Errors.Add(_EP.GetError("no_valid_token"));
             }
 
             var expiryDate = long.Parse(principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
@@ -209,19 +220,19 @@ namespace EMSApp.Core.Services
 
             if (expiryDateTimeLocal > DateTime.Now)
             {
-                response.Errors.Add(new Error { Description = "The access token has not been expired yet" });
+                response.Errors.Add(_EP.GetError("token_not_expired"));
                 return response;
             }
 
             if (refreshToken == null)
             {
-                response.Errors.Add(new Error { Description = "Refresh token does not exist" });
+                response.Errors.Add(_EP.GetError("token_not_found"));
                 return response;
             }
 
             if (refreshToken.Invalidated)
             {
-                response.Errors.Add(new Error { Description = "Token is not valid" });
+                response.Errors.Add(_EP.GetError("no_valid_token"));
                 return response;
             }
 
@@ -230,13 +241,13 @@ namespace EMSApp.Core.Services
                 refreshToken.Invalidated = true;
                 _hostRepository.Update(refreshToken);
                 await _hostRepository.SaveAsync();
-                response.Errors.Add(new Error { Description = "Refresh token is expired" });
+                response.Errors.Add(_EP.GetError("token_expired"));
                 return response;
             }
 
             if (refreshToken.JwtId != jti)
             {
-                response.Errors.Add(new Error { Description = "This refresh token does not match this JWT" });
+                response.Errors.Add(_EP.GetError("token_mismatch"));
                 return response;
             }
 
@@ -254,7 +265,7 @@ namespace EMSApp.Core.Services
             }
             else
             {
-                response.Errors.Add(new Error { Description = "User not found" });
+                response.Errors.Add(_EP.GetError("auth_user_not_found"));
                 return response;
             }
             return response;
@@ -289,9 +300,10 @@ namespace EMSApp.Core.Services
                 EmailConfirmed = tenantContact.EmailConfirmed,
                 Fullname = $"{tenantContact.Name} {tenantContact.Surname}",
                 TenantId = tenant.Id,
-
             };
+
             var result = await _userManager.CreateAsync(applicationUser, _encryptionService.Decrypt(tenantContact.PasswordHash));
+            
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(applicationUser, "Appadmin");
@@ -308,7 +320,7 @@ namespace EMSApp.Core.Services
             }
             else
             {
-
+                //TODO: log fault
             }
         }
 

@@ -9,9 +9,9 @@ namespace EMSApp.Webapi.Controllers
     [Route("api/[controller]")]
     public class FairController : BaseController<FairController>
     {
-        private readonly IFairService _fairService;
+        private readonly FairService _fairService;
         
-        public FairController(IFairService fairService)
+        public FairController(FairService fairService)
         {
             _fairService = fairService;
         }
@@ -19,7 +19,7 @@ namespace EMSApp.Webapi.Controllers
         public async Task<IActionResult> GetAll()
         {
             var user = HttpContext.User;
-            var tenant = TenantContext.CurrentTenant.Tenant;
+            var tenant = TenantContext.Tenant;
             var fairs = await _fairService.GetAll();
             
             return Ok(fairs);

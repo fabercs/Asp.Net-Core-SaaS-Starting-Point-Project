@@ -1,4 +1,5 @@
-﻿using EMSApp.Core.DTO.Requests;
+﻿using EMSApp.Core.DTO;
+using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -27,11 +28,7 @@ namespace EMSApp.Webapi.Controllers
             {
                 return BadRequest(ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage)));
             }
-            if (registerRequest.Password != registerRequest.PasswordAgain)
-            {
-                return BadRequest("Password mismatch");
-            }
-            //TODO: what is after register suceeded scenario?
+            
             var response = await _authService.Register(registerRequest);
 
             if (!response.Success)
@@ -45,11 +42,12 @@ namespace EMSApp.Webapi.Controllers
         [HttpGet("verify")]
         public async Task<IActionResult> Verify([FromQuery] Guid tcid, [FromQuery]string token)
         {
+            //TODO: redirection to a user-friendly error page
             if (tcid == Guid.Empty)
-                return BadRequest($"{nameof(tcid)} is not valid");
+                return BadRequest(new Error { Description = $"{nameof(tcid)} is not valid" });
 
             if (string.IsNullOrWhiteSpace(token))
-                return BadRequest($"{nameof(token)} is not valid");
+                return BadRequest(new Error { Description = $"{nameof(token)} is not valid" });
 
             var response = await _authService.Verify(tcid, token);
             if (response.Success)
