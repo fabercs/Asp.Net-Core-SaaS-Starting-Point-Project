@@ -120,4 +120,37 @@
   <data name="EmailInUse" xml:space="preserve">
     <value>This email account is in use</value>
   </data>
+  <data name="InvalidUserOrPass" xml:space="preserve">
+    <value>Invalid user or password</value>
+  </data>
+  <data name="NoTenant" xml:space="preserve">
+    <value>Tenant could not be found</value>
+  </data>
+  <data name="NoValidToken" xml:space="preserve">
+    <value>Token is not valid</value>
+  </data>
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>Passwords does not match</value>
+  </data>
+  <data name="ServerError" xml:space="preserve">
+    <value>An error occured, please contact to system administrator</value>
+  </data>
+  <data name="TenantExist" xml:space="preserve">
+    <value>There is already tenant with exact hostname</value>
+  </data>
+  <data name="TokenExpired" xml:space="preserve">
+    <value>Token has expired</value>
+  </data>
+  <data name="TokenMismatch" xml:space="preserve">
+    <value>Tokens does not match</value>
+  </data>
+  <data name="TokenNotExpired" xml:space="preserve">
+    <value>Access token has not been expired yet</value>
+  </data>
+  <data name="TokenNotFound" xml:space="preserve">
+    <value>Token could not be found</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User could not be found</value>
+  </data>
 </root>

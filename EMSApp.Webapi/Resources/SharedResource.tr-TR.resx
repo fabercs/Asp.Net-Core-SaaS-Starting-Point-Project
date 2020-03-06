@@ -120,4 +120,37 @@
   <data name="EmailInUse" xml:space="preserve">
     <value>Bu eposta hesabı ile kayıt yapılmış</value>
   </data>
+  <data name="InvalidUserOrPass" xml:space="preserve">
+    <value>Geçersiz kullanıcı ya da şifre</value>
+  </data>
+  <data name="NoTenant" xml:space="preserve">
+    <value>Uygulama(tenant) bulunamadı</value>
+  </data>
+  <data name="NoValidToken" xml:space="preserve">
+    <value>Token geçerli değil</value>
+  </data>
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>Şifreler uyuşmuyor</value>
+  </data>
+  <data name="ServerError" xml:space="preserve">
+    <value>Bir hata oluştu, lütfen sistem yöneticisiyle irtibata geçin</value>
+  </data>
+  <data name="TenantExist" xml:space="preserve">
+    <value>Bu host ismi ile başka bir uygulama mevcut</value>
+  </data>
+  <data name="TokenExpired" xml:space="preserve">
+    <value>Token'ın süresi geçmiş</value>
+  </data>
+  <data name="TokenMismatch" xml:space="preserve">
+    <value>Token'lar uyuşmuyor</value>
+  </data>
+  <data name="TokenNotExpired" xml:space="preserve">
+    <value>Access token'ın süresi henüz geçmemiş</value>
+  </data>
+  <data name="TokenNotFound" xml:space="preserve">
+    <value>Token bulunamadı</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>Kullanıcı bulunamadı</value>
+  </data>
 </root>

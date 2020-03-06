@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
 {
-    [Route("api/[controller]")]
     public class AuthController : BaseController<AuthController>
     {
         private readonly IAuthService _authService;
@@ -33,7 +32,7 @@ namespace EMSApp.Webapi.Controllers
 
             if (!response.Success)
             {
-                return BadRequest(response.Errors);
+                return BadRequest(new { errors = response.Errors });
             };
             return Ok(response.Data);
         }
@@ -56,7 +55,7 @@ namespace EMSApp.Webapi.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest(new { errors = response.Errors });
             }
         }
 
@@ -71,7 +70,7 @@ namespace EMSApp.Webapi.Controllers
             var response = await _authService.Authenticate(loginRequest);
             if (!response.Success)
             {
-                return BadRequest(response.Errors);
+                return BadRequest(new { errors = response.Errors });
             };
             return Ok(response.Data);
 
@@ -87,7 +86,7 @@ namespace EMSApp.Webapi.Controllers
             Response<AuthResponse> response = await _authService.ExchangeRefreshToken(tokenRequest);
             if (!response.Success)
             {
-                return BadRequest(response.Errors);
+                return BadRequest(new { errors = response.Errors });
             };
             return Ok(response.Data);
         }

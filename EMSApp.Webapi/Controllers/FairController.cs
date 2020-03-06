@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 namespace EMSApp.Webapi.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
     public class FairController : BaseController<FairController>
     {
         private readonly FairService _fairService;

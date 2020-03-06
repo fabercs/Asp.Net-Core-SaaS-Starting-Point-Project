@@ -13,7 +13,10 @@ namespace EMSApp.Core.DTO.Requests
         [Required]
         public string Phone { get; set; }
 
+        [Required]
         [StringLength(50)]
+        public string Hostname{ get; set; }
+
         [Required]
         public string Appname { get; set; }
 

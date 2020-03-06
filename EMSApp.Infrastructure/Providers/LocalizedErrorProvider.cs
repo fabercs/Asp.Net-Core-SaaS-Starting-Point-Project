@@ -12,7 +12,7 @@ namespace EMSApp.Infrastructure.Providers
         {
             _L = localizationService;
         }
-        public Error GetError(string key) => new Error(key, _L.GetLocalizedValue(Constants.Errors["key"]));
+        public Error GetError(string key) => new Error(key, _L.GetLocalizedValue(Constants.Errors[key]));
         
     }
 }

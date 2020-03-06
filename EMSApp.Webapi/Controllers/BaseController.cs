@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace EMSApp.Webapi.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class BaseController<T> : ControllerBase
     {
         private TenantContext _tenantContext { get; set; }

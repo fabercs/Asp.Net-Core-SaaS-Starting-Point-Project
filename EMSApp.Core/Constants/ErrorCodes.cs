@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace EMSApp.Core
 {
@@ -10,6 +8,7 @@ namespace EMSApp.Core
         {
             { "register_password_mismatch", "PasswordMismatch" },
             { "register_email_in_use", "EmailInUse"},
+            { "register_tenant_exist","TenantExist" },
             { "verify_no_tenant", "NoTenant" },
             { "no_valid_token","NoValidToken" },
             { "token_expired", "TokenExpired" },

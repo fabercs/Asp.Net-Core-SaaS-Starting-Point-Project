@@ -22,8 +22,8 @@ namespace EMSApp.Infrastructure
                 var client = new SendGridClient(_configuration.GetSection("SendGridSettings")["ApiKey"]);
                 var from = new EmailAddress("info@exms.io");
                 var to = new EmailAddress(email);
-                var msg = MailHelper.CreateSingleEmail(from, to, subject, message, null);
-                
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, null, null);
+                msg.HtmlContent = message;
                 await client.SendEmailAsync(msg);
             }
             catch(Exception ex)
