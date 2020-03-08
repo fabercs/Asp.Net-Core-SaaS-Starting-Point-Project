@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using EMSApp.Core.Interfaces;
+using System.Threading;
 
 namespace EMSApp.Infrastructure.Data.MultiTenancy
 {
@@ -6,7 +7,7 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
     public class CurrentTenantContextAccessor : ICurrentTenantContextAccessor
     {
         private static AsyncLocal<TenantHolder> _currentTenantContext = new AsyncLocal<TenantHolder>();
-        public TenantContext CurrentTenant { 
+        public ITenantContext CurrentTenant { 
             get {
                 return _currentTenantContext.Value?.Context;
             } 
@@ -25,7 +26,7 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
 
         private class TenantHolder
         {
-            public TenantContext Context;
+            public ITenantContext Context;
         }
     }
 }

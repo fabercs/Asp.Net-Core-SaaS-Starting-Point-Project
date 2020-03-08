@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using EMSApp.Core.Interfaces;
+using System;
 
 namespace EMSApp.Infrastructure.Data.MultiTenancy
 {

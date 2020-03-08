@@ -22,7 +22,7 @@ namespace EMSApp.Infrastructure.Data.DependencyInjection
             });
             serviceCollection.AddDbContext<EMSAppDbContext>();
             
-            serviceCollection.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opt =>
+            serviceCollection.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
             {
                 opt.SignIn.RequireConfirmedEmail = true;
                 opt.Password.RequireNonAlphanumeric = false;

@@ -1,10 +1,12 @@
 ﻿using EMSApp.Core.Services;
+using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
 {
+    [TenantRequired]
     [Authorize]
     public class FairController : BaseController<FairController>
     {

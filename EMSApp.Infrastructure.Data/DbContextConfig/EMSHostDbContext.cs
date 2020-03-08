@@ -6,7 +6,7 @@ using System;
 
 namespace EMSApp.Infrastructure.Data.DbContextConfig
 {
-    public class EMSHostDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+    public class EMSHostDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<TenantContact> TenantContacts { get; set; }

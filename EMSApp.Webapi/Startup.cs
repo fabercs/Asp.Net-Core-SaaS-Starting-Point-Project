@@ -4,6 +4,7 @@ using EMSApp.Infrastructure.Data.DependencyInjection;
 using EMSApp.Infrastructure.DependencyInjection;
 using EMSApp.Webapi.DependencyInjection;
 using EMSApp.Webapi.Extensions;
+using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +26,9 @@ namespace EMSApp.Webapi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers(config => {
+                config.Filters.Add<TenantRequired>();
+            });
             services.AddHttpContextAccessor();
             services.AddMemoryCache();
             services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -58,7 +61,9 @@ namespace EMSApp.Webapi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                
             });
+            
         }
     }
 }

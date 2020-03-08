@@ -2,6 +2,7 @@
 using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Services;
+using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -60,6 +61,7 @@ namespace EMSApp.Webapi.Controllers
         }
 
         [AllowAnonymous]
+        [TenantRequired]
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody]LoginRequest loginRequest)
         {

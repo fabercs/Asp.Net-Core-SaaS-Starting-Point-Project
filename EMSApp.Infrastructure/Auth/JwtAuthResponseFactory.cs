@@ -20,13 +20,13 @@ namespace EMSApp.Infrastructure.Auth
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ITokenFactory _tokenFactory;
         private readonly IHostRepository _hostRepository;
 
         public JwtAuthResponseFactory(IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole<Guid>> roleManager,
+            RoleManager<ApplicationRole> roleManager,
             ITokenFactory tokenFactory,
             IHostRepository hostRepository
             )

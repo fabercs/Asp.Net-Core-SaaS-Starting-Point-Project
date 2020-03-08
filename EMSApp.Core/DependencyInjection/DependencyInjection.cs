@@ -9,7 +9,8 @@ namespace EMSApp.Core.DependencyInjection
         {
             serviceCollection.AddScoped<IAuthService, AuthService>();
             serviceCollection.AddScoped<ITenantService, TenantService>();
-            serviceCollection.AddScoped<FairService, FairService>();
+            serviceCollection.AddScoped<IFairService, FairService>();
+            serviceCollection.AddScoped<IRoleService, RoleService>();
             serviceCollection.AddScoped<IEncryptionService, EncryptionService>();
 
             return serviceCollection;

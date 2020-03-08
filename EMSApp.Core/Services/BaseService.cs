@@ -9,10 +9,13 @@ namespace EMSApp.Core.Services
     {
         protected readonly ILocalizationService L;
         protected readonly ILogger<BaseService> Logger;
+        public ITenantContext TenantContext { get; }
+
         public BaseService(IServiceProvider serviceProvider)
         {
             L = serviceProvider.GetService<ILocalizationService>();
             Logger = serviceProvider.GetService<ILogger<BaseService>>();
+            TenantContext = serviceProvider.GetService<ICurrentTenantContextAccessor>()?.CurrentTenant;
         }
     }
 }

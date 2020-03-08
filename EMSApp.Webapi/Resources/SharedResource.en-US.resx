@@ -126,6 +126,9 @@
   <data name="NoTenant" xml:space="preserve">
     <value>Tenant could not be found</value>
   </data>
+  <data name="NoTenantContact" xml:space="preserve">
+    <value>Tenant contact could not be found</value>
+  </data>
   <data name="NoValidToken" xml:space="preserve">
     <value>Token is not valid</value>
   </data>

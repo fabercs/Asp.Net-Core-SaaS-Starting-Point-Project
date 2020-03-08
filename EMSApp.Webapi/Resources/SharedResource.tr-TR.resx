@@ -126,6 +126,9 @@
   <data name="NoTenant" xml:space="preserve">
     <value>Uygulama(tenant) bulunamadı</value>
   </data>
+  <data name="NoTenantContact" xml:space="preserve">
+    <value>Uygulama(tenant) sorumlusu bulunamadı</value>
+  </data>
   <data name="NoValidToken" xml:space="preserve">
     <value>Token geçerli değil</value>
   </data>

@@ -153,7 +153,7 @@ namespace EMSApp.Core.Services
 
                 if (tenantContact == null)
                 {
-                    response.Errors.Add(_EP.GetError("verify_no_tenant"));
+                    response.Errors.Add(_EP.GetError("no_tenant_contact"));
                     return response;
                 }
 
@@ -196,9 +196,16 @@ namespace EMSApp.Core.Services
             var response = new Response<AuthResponse>();
             try
             {
+                var tenantId = TenantContext.Tenant.Id;
                 var user = await _userManager.FindByEmailAsync(loginRequest.Username);
                 if (user != null)
                 {
+                    if(user.TenantId != tenantId)
+                    {
+                        Logger.LogWarning($"{loginRequest.Username} tried to log in to app {tenantId}");
+                        response.Errors.Add(_EP.GetError("auth_invalid_user_pass"));
+                        return response;
+                    }
                     var result = await _signInManager.PasswordSignInAsync(user, loginRequest.Password, true, false);
                     if (result.Succeeded)
                     {
