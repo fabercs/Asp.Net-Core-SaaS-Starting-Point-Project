@@ -22,13 +22,9 @@ namespace EMSApp.Webapi.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
+        [Validate]
         public async Task<IActionResult> Register([FromBody]RegisterRequest registerRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage)));
-            }
-            
             var response = await _authService.Register(registerRequest);
 
             if (!response.Success)
@@ -62,13 +58,10 @@ namespace EMSApp.Webapi.Controllers
 
         [AllowAnonymous]
         [TenantRequired]
+        [Validate]
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody]LoginRequest loginRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage)));
-            }
             var response = await _authService.Authenticate(loginRequest);
             if (!response.Success)
             {
@@ -79,12 +72,9 @@ namespace EMSApp.Webapi.Controllers
         }
 
         [HttpPost("refreshtoken")]
+        [Validate]
         public async Task<IActionResult> RefreshToken([FromBody]ExchangeTokenRequest tokenRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage)));
-            }
             Response<AuthResponse> response = await _authService.ExchangeRefreshToken(tokenRequest);
             if (!response.Success)
             {

@@ -1,3 +1,4 @@
+using AutoMapper;
 using EMSApp.Core.DependencyInjection;
 using EMSApp.Infrastructure.Data.DbContextConfig;
 using EMSApp.Infrastructure.Data.DependencyInjection;
@@ -28,9 +29,11 @@ namespace EMSApp.Webapi
         {
             services.AddControllers(config => {
                 config.Filters.Add<TenantRequired>();
+                config.Filters.Add<Validate>();
             });
             services.AddHttpContextAccessor();
             services.AddMemoryCache();
+            services.AddAutoMapper(typeof(Startup));
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddCoreDependencies();

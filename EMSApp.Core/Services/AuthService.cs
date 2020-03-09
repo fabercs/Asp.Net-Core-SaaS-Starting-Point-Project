@@ -35,7 +35,6 @@ namespace EMSApp.Core.Services
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IHostRepository _hostRepository;
         private readonly ITenantService _tenantService;
-        private readonly IMemoryCache _memoryCache;
         private readonly IErrorProvider _EP;
         private readonly IEmailService _emailService;
         private readonly IEncryptionService _encryptionService;
@@ -50,8 +49,7 @@ namespace EMSApp.Core.Services
             IHostRepository hostRepository,
             IErrorProvider errorProvider,
             ITenantService tenantService,
-            IServiceProvider provider,
-            IMemoryCache memoryCache) : base(provider)
+            IServiceProvider provider) : base(provider)
         {
             _emailService = emailService;
             _encryptionService = encryptionService;
@@ -62,7 +60,6 @@ namespace EMSApp.Core.Services
             _tokenValidationParameters = tokenValidationParameters;
             _hostRepository = hostRepository;
             _tenantService = tenantService;
-            _memoryCache = memoryCache;
             _EP = errorProvider;
         }
         public async Task<Response<RegisterResponse>> Register(RegisterRequest registerRequest)
@@ -312,7 +309,7 @@ namespace EMSApp.Core.Services
         }
 
 
-        #region Helpers
+        #region Privates
 
         private async Task CreateTenantResources(string email, string password)
         {
@@ -366,8 +363,8 @@ namespace EMSApp.Core.Services
 
         private async Task ReloadTenantsToCahce()
         {
-            _memoryCache.Remove("tenants");
-            await _memoryCache.GetOrCreateAsync("tenants", async t =>
+            Cache.Remove("tenants");
+            await Cache.GetOrCreateAsync("tenants", async t =>
             {
                 t.SetSlidingExpiration(TimeSpan.FromMinutes(30));
                 var list = await _hostRepository.GetAsync<Tenant>(t => t.ResourcesCreated);
@@ -441,6 +438,6 @@ namespace EMSApp.Core.Services
                        StringComparison.InvariantCultureIgnoreCase);
         }
 
-        #endregion Helpers
+        #endregion Privates
     }
 }

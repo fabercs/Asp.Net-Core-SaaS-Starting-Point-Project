@@ -42,6 +42,10 @@ namespace EMSApp.Core.Services
                     response.Errors.Add(new Error { Description = error.Description });
                 }
             }
+            else
+            {
+                response.Success = true;
+            }
             return response;
         }
         public async Task<Response<bool>> DeleteRole(string roleName)
@@ -55,6 +59,10 @@ namespace EMSApp.Core.Services
                 {
                     response.Errors.Add(new Error { Description = error.Description });
                 }
+            }
+            else
+            {
+                response.Success = true;
             }
             return response;
         }

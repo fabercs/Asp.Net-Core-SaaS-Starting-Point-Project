@@ -10,9 +10,9 @@ namespace EMSApp.Webapi.Controllers
     [Authorize]
     public class FairController : BaseController<FairController>
     {
-        private readonly FairService _fairService;
+        private readonly IFairService _fairService;
         
-        public FairController(FairService fairService)
+        public FairController(IFairService fairService)
         {
             _fairService = fairService;
         }
