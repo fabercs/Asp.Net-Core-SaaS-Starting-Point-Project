@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EMSApp.Infrastructure.Data.Migrations.EMSAppDb
 {
     [DbContext(typeof(EMSAppDbContext))]
-    [Migration("20200225093954_init")]
+    [Migration("20200310200016_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

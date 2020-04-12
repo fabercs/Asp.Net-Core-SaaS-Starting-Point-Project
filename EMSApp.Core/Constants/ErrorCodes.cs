@@ -4,6 +4,10 @@ namespace EMSApp.Core
 {
     public static class Constants
     {
+        /// <summary>
+        /// ErrorCode Dictionary, key is the error code which will be informative for client,
+        /// and value is the localization resource key value.
+        /// </summary>
         public static Dictionary<string, string> Errors = new Dictionary<string, string>
         {
             { "register_password_mismatch", "PasswordMismatch" },

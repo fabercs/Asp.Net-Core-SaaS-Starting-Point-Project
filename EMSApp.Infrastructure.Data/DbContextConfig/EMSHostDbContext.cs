@@ -19,9 +19,6 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<IdentityRole<Guid>>().HasData(
-                new IdentityRole<Guid> { Id = Guid.NewGuid(), Name = "Appadmin", NormalizedName = "Appadmin".ToUpper() }
-                );
         }
     }
 }

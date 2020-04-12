@@ -19,5 +19,13 @@ namespace EMSApp.Webapi.Localization
         {
             return _localizer[key];
         }
+
+        public string this[string key, params object[] arguments]
+        {
+            get
+            {
+                return _localizer[key, arguments];
+            }
+        }
     }
 }

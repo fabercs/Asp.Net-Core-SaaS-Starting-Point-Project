@@ -19,8 +19,7 @@ namespace EMSApp.Webapi.Filters
             {
                 context.Result = new BadRequestObjectResult(new
                 {
-                    errors =
-                    errorProvider.GetError("no_tenant")
+                    errors = errorProvider.GetError("no_tenant")
                 });
             }
             await next();

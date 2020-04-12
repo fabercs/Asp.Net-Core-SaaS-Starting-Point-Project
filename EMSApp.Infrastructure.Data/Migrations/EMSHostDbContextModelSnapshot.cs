@@ -466,35 +466,6 @@ namespace EMSApp.Infrastructure.Data.Migrations
                     b.ToTable("TenantSetting");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IdentityRole<Guid>");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("63023033-7cc1-4f44-aa60-b88af3725313"),
-                            ConcurrencyStamp = "d15e3089-d0ad-4ef4-b7e4-27f4fb905302",
-                            Name = "Appadmin",
-                            NormalizedName = "APPADMİN"
-                        });
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
