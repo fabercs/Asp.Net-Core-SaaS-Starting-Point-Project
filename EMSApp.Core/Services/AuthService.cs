@@ -30,6 +30,7 @@ namespace EMSApp.Core.Services
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IJwtAuthResponseFactory _jwtTokenFactory;
         private readonly TokenValidationParameters _tokenValidationParameters;
@@ -43,6 +44,7 @@ namespace EMSApp.Core.Services
             IEncryptionService encryptionService,
             IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
             SignInManager<ApplicationUser> signInManager,
             IJwtAuthResponseFactory jwtTokenFactory,
             TokenValidationParameters tokenValidationParameters,
@@ -55,6 +57,7 @@ namespace EMSApp.Core.Services
             _encryptionService = encryptionService;
             _configuration = configuration;
             _userManager = userManager;
+            _roleManager = roleManager;
             _signInManager = signInManager;
             _jwtTokenFactory = jwtTokenFactory;
             _tokenValidationParameters = tokenValidationParameters;
@@ -343,9 +346,8 @@ namespace EMSApp.Core.Services
             
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(applicationUser, "Appadmin");
-                await _hostRepository.SaveAsync();
-
+                await AddUserToRole(tenant.Id, applicationUser, "Appadmin");
+                
                 await _hostRepository.ExecuteSqlCommand($"CREATE DATABASE {dbName};");
 
                 using var connection = new NpgsqlConnection(connectionString);
@@ -353,7 +355,7 @@ namespace EMSApp.Core.Services
                 await connection.OpenAsync();
                 await command.ExecuteNonQueryAsync();
 
-                await ReloadTenantsToCahce();
+                await ReloadTenantsToCache();
             }
             else
             {
@@ -361,7 +363,26 @@ namespace EMSApp.Core.Services
             }
         }
 
-        private async Task ReloadTenantsToCahce()
+        private async Task AddUserToRole(Guid tenantId, ApplicationUser applicationUser, string role)
+        {
+            var appRole = await _roleManager.FindByNameAsync(role);
+            if(appRole == null)
+            {
+                await _roleManager.CreateAsync(new ApplicationRole { 
+                    Name = "Appadmin",
+                    NormalizedName = "APPADMIN",
+                    TenantId = tenantId
+                });
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(applicationUser, "Appadmin");
+            }
+            await _hostRepository.SaveAsync();
+
+        }
+
+        private async Task ReloadTenantsToCache()
         {
             Cache.Remove("tenants");
             await Cache.GetOrCreateAsync("tenants", async t =>
@@ -405,7 +426,7 @@ namespace EMSApp.Core.Services
             var emailConfirmationToken = tenantContact.Tokens.FirstOrDefault(t => t.Name == "EmailConfirmationToken");
             var basePath = _configuration.GetValue<string>("HostBasePath");
             var callbackUrl = $"{basePath}/api/auth/verify?tcid={tenantContact.Id}&token={emailConfirmationToken.Value}";
-            var message = $"Please verify your email by clicking <a href='{callbackUrl}'>here</a>";
+            var message = $"Please verify your email by clicking {callbackUrl}";
 
             await _emailService.SendEmailAsync(tenant.Responsibles.FirstOrDefault()?.Email, "ExMS Verify your email",
                 message);

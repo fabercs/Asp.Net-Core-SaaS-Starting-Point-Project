@@ -2,6 +2,7 @@
 using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
@@ -19,11 +20,17 @@ namespace EMSApp.Webapi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var user = HttpContext.User;
-            var tenant = TenantContext.Tenant;
+            //var user = HttpContext.User;
+            //var tenant = TenantContext.Tenant;
             var fairs = await _fairService.GetAll();
             
             return Ok(fairs);
+        }
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var fair = await _fairService.GetById(id);
+            return Ok(fair);
         }
     }
 }

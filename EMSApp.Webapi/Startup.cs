@@ -28,18 +28,20 @@ namespace EMSApp.Webapi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers(config => {
-                config.Filters.Add<TenantRequired>();
-                config.Filters.Add<Validate>();
+                //config.Filters.Add<TenantRequired>();
+                //config.Filters.Add<Validate>();
             });
             services.AddHttpContextAccessor();
             services.AddMemoryCache();
             services.AddAutoMapper(typeof(Startup));
             services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddCors();
 
             services.AddCoreDependencies();
             services.AddInfrastructureDependencies();
             services.AddInfraDataDependencies(Configuration);
             services.AddApiDependencies(Configuration);
+
 
         }
 
@@ -51,6 +53,8 @@ namespace EMSApp.Webapi
                 app.UseDeveloperExceptionPage();
             }
             app.UseRouting();
+            app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
             app.UseAuthentication();
             app.UseAuthorization();
 

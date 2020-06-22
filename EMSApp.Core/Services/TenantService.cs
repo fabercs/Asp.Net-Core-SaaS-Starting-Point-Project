@@ -19,7 +19,8 @@ namespace EMSApp.Core.Services
             _hostRepository = hostRepository;
         }
         public async Task<Tenant> GetTenantByHostname(string hostname)
-            => await _hostRepository.GetFirstAsync<Tenant>(t => t.Host == hostname);
+            => await _hostRepository.GetFirstAsync<Tenant>(t => t.Host == hostname, 
+                includeProperties: "TenantSetting,Responsibles.Tokens");
 
         public async Task<Tenant> GetTenantById(Guid id)
             => await _hostRepository.GetByIdAsync<Tenant>(id);

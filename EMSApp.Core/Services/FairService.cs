@@ -10,6 +10,7 @@ namespace EMSApp.Core.Services
     public interface IFairService
     {
         Task<List<Fair>> GetAll();
+        Task<Fair> GetById(Guid id);
     }
 
     public class FairService : BaseService, IFairService
@@ -25,6 +26,12 @@ namespace EMSApp.Core.Services
         {
             var fairs = await _appRepository.GetAllAsync<Fair>();
             return fairs.ToList();
+        }
+
+        public async Task<Fair> GetById(Guid id)
+        {
+            var fair = await _appRepository.GetByIdAsync<Fair>(id);
+            return fair;
         }
     }
 }
