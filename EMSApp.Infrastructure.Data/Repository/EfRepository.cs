@@ -32,7 +32,7 @@ namespace EMSApp.Infrastructure.Data.Repository
             int? take = null)
             where TEntity : class, IEntity
         {
-            includeProperties = includeProperties ?? string.Empty;
+            includeProperties ??= string.Empty;
             IQueryable<TEntity> query = context.Set<TEntity>();
 
             if (filter != null)

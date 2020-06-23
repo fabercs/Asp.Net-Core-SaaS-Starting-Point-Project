@@ -3,15 +3,17 @@ using System;
 using EMSApp.Infrastructure.Data.DbContextConfig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace EMSApp.Infrastructure.Data.Migrations.EMSAppDb
 {
     [DbContext(typeof(EMSAppDbContext))]
-    partial class EMSAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200623105048_fair-firm")]
+    partial class fairfirm
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,11 +53,11 @@ namespace EMSApp.Infrastructure.Data.Migrations.EMSAppDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CityCode")
-                        .HasColumnType("text");
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("CountryCode")
-                        .HasColumnType("text");
+                    b.Property<int>("CountryId")
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
@@ -144,11 +146,11 @@ namespace EMSApp.Infrastructure.Data.Migrations.EMSAppDb
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
-                    b.Property<string>("CityCode")
-                        .HasColumnType("text");
+                    b.Property<int>("CityId")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("CountryCode")
-                        .HasColumnType("text");
+                    b.Property<int>("CountryId")
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");

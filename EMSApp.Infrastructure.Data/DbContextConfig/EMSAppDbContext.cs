@@ -14,7 +14,12 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
         private readonly Tenant _tenant;
 
         public DbSet<Fair> Fairs { get; set; }
-            
+        public DbSet<FairFirm> FairFirm { get; set; }
+        public DbSet<Firm> Firm { get; set; }
+        public DbSet<FirmContact> FirmContact { get; set; }
+        public DbSet<Country> Country { get; set; }
+        public DbSet<City> City { get; set; }
+
 
         private static MethodInfo ConfigureGlobalFiltersMethodInfo;
 
@@ -52,6 +57,16 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
                 }
             }
 
+            modelBuilder.Entity<FairFirm>().Ignore("Id");
+            modelBuilder.Entity<FairFirm>()
+                .HasKey(x => new { x.FairId, x.FirmId });
+            modelBuilder.Entity<FairFirm>()
+                .HasOne(x => x.Fair).WithMany(x => x.FairFirm).HasForeignKey(x=>x.FairId);
+            modelBuilder.Entity<FairFirm>()
+                .HasOne(x => x.Firm).WithMany(x => x.FairFirm).HasForeignKey(x => x.FirmId);
+
+            modelBuilder.Entity<Country>().HasNoKey().HasIndex("Code");
+            modelBuilder.Entity<City>().HasNoKey().HasIndex("Code");
 
             base.OnModelCreating(modelBuilder);
         }

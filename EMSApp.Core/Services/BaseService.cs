@@ -16,12 +16,15 @@ namespace EMSApp.Core.Services
 
         protected readonly IMemoryCache Cache;
 
+        protected readonly IAppRepository AppRepository;
+
         public BaseService(IServiceProvider serviceProvider)
         {
             L = serviceProvider.GetService<ILocalizationService>();
             Logger = serviceProvider.GetService<ILogger<BaseService>>();
             TenantContext = serviceProvider.GetService<ICurrentTenantContextAccessor>()?.CurrentTenant;
             Cache = serviceProvider.GetService<IMemoryCache>();
+            AppRepository = serviceProvider.GetService<IAppRepository>();
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using EMSApp.Core.Interfaces;
-
-namespace EMSApp.Core.DTO
+﻿namespace EMSApp.Core.DTO
 {
     public class Error
     {
