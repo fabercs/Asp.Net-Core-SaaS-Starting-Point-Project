@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200625191218_module-page-action.cs" />
+    <Compile Remove="Migrations\20200625191218_module-page-action.Designer.cs" />
     <Compile Remove="Migrations\EMSAppDb\20200623104638_fair-firm.cs" />
     <Compile Remove="Migrations\EMSAppDb\20200623104638_fair-firm.Designer.cs" />
   </ItemGroup>

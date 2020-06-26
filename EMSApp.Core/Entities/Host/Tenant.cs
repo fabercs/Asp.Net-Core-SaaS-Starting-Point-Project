@@ -15,9 +15,7 @@ namespace EMSApp.Core.Entities
         public string Host { get; set; }
         public string ConnectionString { get; set; }
         public bool IsDeleted { get; set; }
-
         public bool ResourcesCreated { get; set; }
-
         public Guid TenantSettingId { get; set; }
         [ForeignKey(nameof(TenantSettingId))]
         public TenantSetting TenantSetting { get; set; }

@@ -28,7 +28,7 @@ namespace EMSApp.Infrastructure
             }
             catch(Exception ex)
             {
-                
+                throw ex;
             }
             
         }

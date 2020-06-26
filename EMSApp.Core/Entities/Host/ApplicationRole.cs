@@ -1,6 +1,8 @@
 ﻿using EMSApp.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EMSApp.Core.Entities
@@ -17,5 +19,6 @@ namespace EMSApp.Core.Entities
         public Guid? ModifiedBy { get; set; }
         public byte[] Version { get; set; }
         object IEntity.Id { get; set; }
+        public ICollection<ApplicationRoleAction> AppRoleActions { get; set; }
     }
 }

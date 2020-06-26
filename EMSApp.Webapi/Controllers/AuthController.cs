@@ -1,11 +1,14 @@
 ﻿using EMSApp.Core.DTO;
 using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.DTO.Responses;
+using EMSApp.Core.Entities;
 using EMSApp.Core.Services;
 using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
@@ -61,12 +64,25 @@ namespace EMSApp.Webapi.Controllers
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody]LoginRequest loginRequest)
         {
+
             var response = await _authService.Authenticate(loginRequest);
+
             if (!response.Success)
             {
                 return BadRequest(new { errors = response.Errors });
             };
-            return Ok(response.Data);
+            var authResponse = response.Data;
+
+            var userDto = Mapper.Map<UserDto>(authResponse.User);
+            userDto.PermittedPages = Mapper.Map<List<PageDto>>(authResponse.Modules.SelectMany(m => m.Pages));
+            userDto.Tenant = Mapper.Map<TenantDto>(TenantContext.Tenant);
+            
+            return Ok(new { 
+                accessToken = authResponse.AccessToken.Token,
+                accessTokenExpires = authResponse.AccessToken.ExpiresIn,
+                refreshToken = authResponse.RefreshToken,
+                user = userDto
+            });
 
         }
 

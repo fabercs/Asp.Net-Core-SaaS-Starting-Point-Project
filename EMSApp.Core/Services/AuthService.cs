@@ -16,6 +16,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Action = EMSApp.Core.Entities.Action;
 
 namespace EMSApp.Core.Services
 {
@@ -36,6 +37,7 @@ namespace EMSApp.Core.Services
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IHostRepository _hostRepository;
         private readonly ITenantService _tenantService;
+        private readonly IRoleService _roleService;
         private readonly IErrorProvider _EP;
         private readonly IEmailService _emailService;
         private readonly IEncryptionService _encryptionService;
@@ -45,6 +47,7 @@ namespace EMSApp.Core.Services
             IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
+            IRoleService roleService,
             SignInManager<ApplicationUser> signInManager,
             IJwtAuthResponseFactory jwtTokenFactory,
             TokenValidationParameters tokenValidationParameters,
@@ -58,6 +61,7 @@ namespace EMSApp.Core.Services
             _configuration = configuration;
             _userManager = userManager;
             _roleManager = roleManager;
+            _roleService = roleService;
             _signInManager = signInManager;
             _jwtTokenFactory = jwtTokenFactory;
             _tokenValidationParameters = tokenValidationParameters;
@@ -210,7 +214,12 @@ namespace EMSApp.Core.Services
                     if (result.Succeeded)
                     {
                         response.Success = true;
+                        var roles = await _userManager.GetRolesAsync(user);
+                        var permissions = await _roleService.GetRolesPermissions(roles.ToArray());
+                        
                         var authResponse = await _jwtTokenFactory.GenerateAuthResponseForUser(user);
+                        authResponse.User = user;
+                        authResponse.Modules = permissions.Data;
                         response.Data = authResponse;
                     }
                     else
@@ -326,9 +335,20 @@ namespace EMSApp.Core.Services
             string connectionString = GenerateConnectionString(dbName);
             string dbScript = await GetDbScript();
 
-            tenant.ConnectionString = connectionString;
-            tenant.ResourcesCreated = true;
-            _hostRepository.Update(tenant);
+            var appAdminRole = new ApplicationRole
+            {
+                Id = Guid.NewGuid(),
+                Name = "Appadmin",
+                NormalizedName = "APPADMIN",
+                TenantId = tenant.Id
+            };
+            var roleResult = await _roleManager.CreateAsync(appAdminRole);
+
+            if (!roleResult.Succeeded)
+            {
+                throw new ApplicationException(
+                    string.Join(",", roleResult.Errors.Select(r => r.Description)));
+            }
 
             var applicationUser = new ApplicationUser
             {
@@ -342,12 +362,18 @@ namespace EMSApp.Core.Services
                 TenantId = tenant.Id,
             };
 
-            var result = await _userManager.CreateAsync(applicationUser, _encryptionService.Decrypt(tenantContact.PasswordHash));
+            var userResult = await _userManager.CreateAsync(applicationUser, _encryptionService.Decrypt(tenantContact.PasswordHash));
             
-            if (result.Succeeded)
+            if (userResult.Succeeded)
             {
                 await AddUserToRole(tenant.Id, applicationUser, "Appadmin");
-                
+                await CreateAdminPermissions(appAdminRole);
+
+                tenant.ConnectionString = connectionString;
+                tenant.ResourcesCreated = true;
+                _hostRepository.Update(tenant);
+                await _hostRepository.SaveAsync();
+
                 await _hostRepository.ExecuteSqlCommand($"CREATE DATABASE {dbName};");
 
                 using var connection = new NpgsqlConnection(connectionString);
@@ -359,8 +385,24 @@ namespace EMSApp.Core.Services
             }
             else
             {
-                //TODO: log fault
+                throw new ApplicationException(
+                    string.Join(",", userResult.Errors.Select(r => r.Description)));
             }
+        }
+
+        private async Task CreateAdminPermissions(ApplicationRole appAdminRole)
+        {
+            var actions = await _hostRepository.GetAllAsync<Action>();
+            foreach (var action in actions)
+            {
+                var appRoleAction = new ApplicationRoleAction
+                {
+                    ApplicationRoleId = appAdminRole.Id,
+                    ActionId = action.Id
+                };
+                _hostRepository.Create(appRoleAction);
+            }
+            await _hostRepository.SaveAsync();
         }
 
         private async Task AddUserToRole(Guid tenantId, ApplicationUser applicationUser, string role)

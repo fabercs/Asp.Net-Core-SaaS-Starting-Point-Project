@@ -19,6 +19,7 @@ namespace EMSApp.Core.Services
         Task<Response<bool>> Delete(Guid userId);
         Task<Response<bool>> Update(ApplicationUser user);
         Task<Response<bool>> AddToRole(ApplicationUser user, string role);
+        Task<Response<bool>> RemoveFromRole(ApplicationUser user, string role);
     }
     public class UserService : BaseService, IUserService
     {
@@ -121,6 +122,24 @@ namespace EMSApp.Core.Services
             var user = await _userManager.FindByIdAsync(id.ToString());
             response.Success = true;
             response.Data = user;
+            return response;
+        }
+
+        public async Task<Response<bool>> RemoveFromRole(ApplicationUser user, string role)
+        {
+            var response = new Response<bool>();
+            var result = await _userManager.RemoveFromRoleAsync(user, role);
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    response.Errors.Add(new Error { Description = error.Description });
+                }
+            }
+            else
+            {
+                response.Success = true;
+            }
             return response;
         }
 

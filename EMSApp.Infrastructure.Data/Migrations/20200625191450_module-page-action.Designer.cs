@@ -3,15 +3,17 @@ using System;
 using EMSApp.Infrastructure.Data.DbContextConfig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace EMSApp.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(EMSHostDbContext))]
-    partial class EMSHostDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200625191450_module-page-action")]
+    partial class modulepageaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,7 +64,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 959, DateTimeKind.Local).AddTicks(210),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 140, DateTimeKind.Local).AddTicks(1293),
                             Name = "create",
                             PageId = 1,
                             Url = "create"
@@ -70,7 +72,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 959, DateTimeKind.Local).AddTicks(462),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 140, DateTimeKind.Local).AddTicks(1567),
                             Name = "edit",
                             PageId = 1,
                             Url = "edit"
@@ -78,14 +80,14 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 959, DateTimeKind.Local).AddTicks(472),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 140, DateTimeKind.Local).AddTicks(1579),
                             Name = "delete",
                             PageId = 1
                         },
                         new
                         {
                             Id = 4,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 959, DateTimeKind.Local).AddTicks(475),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 140, DateTimeKind.Local).AddTicks(1582),
                             Name = "create",
                             PageId = 2,
                             Url = "create"
@@ -93,7 +95,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 959, DateTimeKind.Local).AddTicks(477),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 140, DateTimeKind.Local).AddTicks(1585),
                             Name = "edit",
                             PageId = 2,
                             Url = "edit"
@@ -101,7 +103,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 959, DateTimeKind.Local).AddTicks(480),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 140, DateTimeKind.Local).AddTicks(1589),
                             Name = "delete",
                             PageId = 2
                         });
@@ -342,13 +344,13 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 957, DateTimeKind.Local).AddTicks(6853),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 138, DateTimeKind.Local).AddTicks(7739),
                             Name = "Fuar"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 957, DateTimeKind.Local).AddTicks(7300),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 138, DateTimeKind.Local).AddTicks(8393),
                             Name = "Firma"
                         });
                 });
@@ -360,17 +362,11 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("Component")
-                        .HasColumnType("text");
-
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifedOn")
                         .HasColumnType("timestamp without time zone");
@@ -382,9 +378,6 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Type")
                         .HasColumnType("text");
 
                     b.Property<string>("Url")
@@ -405,7 +398,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 958, DateTimeKind.Local).AddTicks(9130),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 140, DateTimeKind.Local).AddTicks(178),
                             ModuleId = 1,
                             Name = "list",
                             Url = "fair"
@@ -413,7 +406,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedOn = new DateTime(2020, 6, 26, 14, 34, 45, 958, DateTimeKind.Local).AddTicks(9191),
+                            CreatedOn = new DateTime(2020, 6, 25, 22, 14, 50, 140, DateTimeKind.Local).AddTicks(242),
                             ModuleId = 2,
                             Name = "list",
                             Url = "firm"
