@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace EMSApp.Webapi.Controllers
 {
@@ -7,8 +8,16 @@ namespace EMSApp.Webapi.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(new string[] { "1", "2", "3" });
+            return Ok();
         }
 
+        [HttpGet("DetectLang", Name ="DetectLang")]
+        public IActionResult DetectLang()
+        {
+            var acceptLang = HttpContext.Request.Headers["Accept-Language"];
+            HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "X-Acc-Lang");
+            HttpContext.Response.Headers.Add("X-Acc-Lang", acceptLang);
+            return Ok();
+        }
     }
 }

@@ -8,6 +8,7 @@ namespace EMSApp.Core.Entities
     {
         public string Name { get; set; }
         public ICollection<Page> Pages { get; set; } = new List<Page>();
+        public ICollection<LicenceModule> LicenceModules { get; set; }
     }
 
     [Table("Page")]

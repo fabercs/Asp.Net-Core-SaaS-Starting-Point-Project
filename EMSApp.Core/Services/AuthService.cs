@@ -2,6 +2,7 @@
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
+using EMSApp.Core.Validator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -68,6 +69,7 @@ namespace EMSApp.Core.Services
             _hostRepository = hostRepository;
             _tenantService = tenantService;
             _EP = errorProvider;
+            
         }
         public async Task<Response<RegisterResponse>> Register(RegisterRequest registerRequest)
         {
@@ -325,6 +327,9 @@ namespace EMSApp.Core.Services
 
         private async Task CreateTenantResources(string email, string password)
         {
+            _roleManager.RoleValidators.Clear();
+            _roleManager.RoleValidators.Add(new CustomRoleValidator());
+
             var tenantContact = _hostRepository.GetFirst<TenantContact>(tc => tc.Email == email && tc.PasswordHash == password,
                 includeProperties: "Tenant");
             var tenant = tenantContact.Tenant;
@@ -366,7 +371,7 @@ namespace EMSApp.Core.Services
             
             if (userResult.Succeeded)
             {
-                await AddUserToRole(tenant.Id, applicationUser, "Appadmin");
+                await AddUserToRole(applicationUser, appAdminRole);
                 await CreateAdminPermissions(appAdminRole);
 
                 tenant.ConnectionString = connectionString;
@@ -405,22 +410,20 @@ namespace EMSApp.Core.Services
             await _hostRepository.SaveAsync();
         }
 
-        private async Task AddUserToRole(Guid tenantId, ApplicationUser applicationUser, string role)
+        private async Task AddUserToRole(ApplicationUser applicationUser, ApplicationRole role)
         {
-            var appRole = await _roleManager.FindByNameAsync(role);
-            if(appRole == null)
+            try
             {
-                await _roleManager.CreateAsync(new ApplicationRole { 
-                    Name = "Appadmin",
-                    NormalizedName = "APPADMIN",
-                    TenantId = tenantId
-                });
+                //Workaround, TODO:implement own userrole class and own user/role store
+                var userId = new NpgsqlParameter("@userId", applicationUser.Id);
+                var roleId = new NpgsqlParameter("@roleId", role.Id);
+                var sqlCommand = "INSERT INTO public.\"AspNetUserRoles\"(\"UserId\", \"RoleId\") VALUES(@userId, @roleId)";
+                await _hostRepository.ExecuteSqlCommand(sqlCommand, userId, roleId);
             }
-            else
+            catch(Exception ex)
             {
-                await _userManager.AddToRoleAsync(applicationUser, "Appadmin");
+                throw ex;
             }
-            await _hostRepository.SaveAsync();
 
         }
 

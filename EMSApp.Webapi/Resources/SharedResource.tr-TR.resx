@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="EmailInUse" xml:space="preserve">
-    <value>Bu eposta hesabı ile kayıt yapılmış</value>
+    <value>E-posta hesabı daha önce kullanılmış</value>
   </data>
   <data name="InvalidUserOrPass" xml:space="preserve">
-    <value>Geçersiz kullanıcı ya da şifre</value>
+    <value>Geçersiz kullanıcı adı ya da şifre</value>
   </data>
   <data name="NoTenant" xml:space="preserve">
     <value>Uygulama(tenant) bulunamadı</value>
@@ -133,13 +133,13 @@
     <value>Token geçerli değil</value>
   </data>
   <data name="PasswordMismatch" xml:space="preserve">
-    <value>Şifreler uyuşmuyor</value>
+    <value>Girilen şifreler birbiriyle uyuşmuyor</value>
   </data>
   <data name="ServerError" xml:space="preserve">
     <value>Bir hata oluştu, lütfen sistem yöneticisiyle irtibata geçin</value>
   </data>
   <data name="TenantExist" xml:space="preserve">
-    <value>Bu host ismi ile başka bir uygulama mevcut</value>
+    <value>Bu uygulama adı mevcut, lütfen başka bir ad girin</value>
   </data>
   <data name="TokenExpired" xml:space="preserve">
     <value>Token'ın süresi geçmiş</value>

@@ -1,7 +1,6 @@
 ﻿using EMSApp.Core.DTO;
 using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.DTO.Responses;
-using EMSApp.Core.Entities;
 using EMSApp.Core.Services;
 using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
@@ -50,7 +49,7 @@ namespace EMSApp.Webapi.Controllers
             var response = await _authService.Verify(tcid, token);
             if (response.Success)
             {
-                return Ok();
+                return Redirect("http://localhost:3000/accountverified");
             }
             else
             {

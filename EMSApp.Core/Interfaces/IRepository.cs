@@ -95,6 +95,8 @@ namespace EMSApp.Core.Interfaces
 
         Task<bool> ExecuteSqlCommand(string sql);
 
+        Task<bool> ExecuteSqlCommand(string sql, params object[] parameters);
+
         void Save();
 
         Task SaveAsync();

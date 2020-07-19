@@ -12,8 +12,11 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
         Guid>
     {
         public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<Licence> Licences { get; set; }
         public DbSet<TenantContact> TenantContacts { get; set; }
+        public DbSet<TenantContactToken> TenantContactTokens { get; set; }
         public DbSet<TenantLicence> TenantLicences { get; set; }
+        public DbSet<LicenceModule> LicenceModules { get; set; }
         public DbSet<TenantSetting> TenantSettings { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Module> Modules { get; set; }
@@ -26,6 +29,10 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<ApplicationRole>()
+                .HasIndex("NormalizedName")
+                .HasName("RoleNameIndex")
+                .IsUnique(false);
 
             modelBuilder.Entity<ApplicationRoleAction>().Ignore("Id");
             modelBuilder.Entity<ApplicationRoleAction>().
@@ -38,6 +45,18 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
                 .HasOne(x => x.Action)
                 .WithMany(x => x.AppRoleActions)
                 .HasForeignKey(x => x.ActionId);
+
+            modelBuilder.Entity<LicenceModule>().Ignore("Id");
+            modelBuilder.Entity<LicenceModule>().
+                HasKey(x => new { x.LicenceId, x.ModuleId });
+            modelBuilder.Entity<LicenceModule>()
+                .HasOne(x => x.Licence)
+                .WithMany(x => x.LicenceModules)
+                .HasForeignKey(x => x.LicenceId);
+            modelBuilder.Entity<LicenceModule>()
+                .HasOne(x => x.Module)
+                .WithMany(x => x.LicenceModules)
+                .HasForeignKey(x => x.ModuleId);
 
             modelBuilder.SeedDatabase();
         }

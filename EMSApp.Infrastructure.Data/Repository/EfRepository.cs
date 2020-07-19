@@ -249,5 +249,11 @@ namespace EMSApp.Infrastructure.Data.Repository
             int affectedRows = await context.Database.ExecuteSqlRawAsync(sql);
             return affectedRows > 0;
         }
+
+        public async Task<bool> ExecuteSqlCommand(string sql, params object[] parameters)
+        {
+            int affectedRows = await context.Database.ExecuteSqlRawAsync(sql, parameters);
+            return affectedRows > 0;
+        }
     }
 }
