@@ -3,15 +3,17 @@ using System;
 using EMSApp.Infrastructure.Data.DbContextConfig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace EMSApp.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(EMSHostDbContext))]
-    partial class EMSHostDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200727202858_seedrevert")]
+    partial class seedrevert
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,61 +59,6 @@ namespace EMSApp.Infrastructure.Data.Migrations
                     b.HasIndex("PageId");
 
                     b.ToTable("Action");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 7,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(2573),
-                            Name = "view",
-                            PageId = 1
-                        },
-                        new
-                        {
-                            Id = 1,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(2805),
-                            Name = "create",
-                            PageId = 2,
-                            Url = "create"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(2815),
-                            Name = "edit",
-                            PageId = 2,
-                            Url = "edit"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(2818),
-                            Name = "delete",
-                            PageId = 2
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(2820),
-                            Name = "create",
-                            PageId = 3,
-                            Url = "create"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(2822),
-                            Name = "edit",
-                            PageId = 3,
-                            Url = "edit"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(2825),
-                            Name = "delete",
-                            PageId = 3
-                        });
                 });
 
             modelBuilder.Entity("EMSApp.Core.Entities.ApplicationRole", b =>
@@ -375,26 +322,6 @@ namespace EMSApp.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Module");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 270, DateTimeKind.Local).AddTicks(7478),
-                            Name = "Dashboard"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 270, DateTimeKind.Local).AddTicks(7881),
-                            Name = "Fair"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 270, DateTimeKind.Local).AddTicks(7893),
-                            Name = "Firm"
-                        });
                 });
 
             modelBuilder.Entity("EMSApp.Core.Entities.Page", b =>
@@ -447,41 +374,6 @@ namespace EMSApp.Infrastructure.Data.Migrations
                     b.HasIndex("ModuleId");
 
                     b.ToTable("Page");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Component = "dashboard",
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(1524),
-                            FileUrl = "./views/dashboard/analytics/AnalyticsDashboard",
-                            Icon = "Home",
-                            ModuleId = 1,
-                            Name = "view",
-                            Url = "dashboard"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Component = "fair",
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(1607),
-                            FileUrl = "./views/fair/Fairs",
-                            Icon = "Layout",
-                            ModuleId = 2,
-                            Name = "list",
-                            Url = "fair"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Component = "firm",
-                            CreatedOn = new DateTime(2020, 8, 5, 14, 13, 30, 272, DateTimeKind.Local).AddTicks(1611),
-                            FileUrl = "./views/fair/Firms",
-                            Icon = "Briefcase",
-                            ModuleId = 3,
-                            Name = "list",
-                            Url = "firm"
-                        });
                 });
 
             modelBuilder.Entity("EMSApp.Core.Entities.RefreshToken", b =>

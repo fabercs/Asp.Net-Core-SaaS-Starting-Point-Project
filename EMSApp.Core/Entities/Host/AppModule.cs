@@ -16,6 +16,7 @@ namespace EMSApp.Core.Entities
     {
         public string Name { get; set; }
         public string Url { get; set; }
+        public string FileUrl { get; set; }
         public string Component { get; set; }
         public string Icon { get; set; }
         public string Type { get; set; }

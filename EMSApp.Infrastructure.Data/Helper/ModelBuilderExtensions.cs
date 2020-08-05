@@ -11,37 +11,61 @@ namespace EMSApp.Infrastructure.Data.Helper
         {
 
             modelBuilder.Entity<Module>().HasData(
+
                 new Module
                 {
                     Id = 1,
-                    Name = "Fuar",
+                    Name = "Dashboard",
+                    CreatedOn = DateTime.Now
+                },
+                new Module
+                {
+                    Id = 2,
+                    Name = "Fair",
                     CreatedOn = DateTime.Now,
 
                 },
                 new Module
                 {
-                    Id = 2,
-                    Name = "Firma",
+                    Id = 3,
+                    Name = "Firm",
                     CreatedOn = DateTime.Now,
 
                 }
             );
 
             modelBuilder.Entity<Page>().HasData(
-                new Page
-                {
-                    Id = 1,
-                    Name = "list",
-                    Url = "fair",
-                    ModuleId = 1,
-                    CreatedOn = DateTime.Now
-                },
+                 new Page
+                 {
+                     Id = 1,
+                     Name = "view",
+                     Url = "dashboard",
+                     Icon="Home",
+                     Component = "dashboard",
+                     FileUrl = "./views/dashboard/analytics/AnalyticsDashboard",
+                     ModuleId = 1,
+                     CreatedOn = DateTime.Now
+                 },
                 new Page
                 {
                     Id = 2,
                     Name = "list",
-                    Url = "firm",
+                    Url = "fair",
+                    Icon = "Layout",
+                    Component = "fair",
+                    FileUrl = "./views/fair/Fairs",
                     ModuleId = 2,
+                    CreatedOn = DateTime.Now
+                },
+                new Page
+                {
+                    Id = 3,
+                    Name = "list",
+                    Url = "firm",
+                    Icon="Briefcase",
+                    Component = "firm",
+                    FileUrl = "./views/fair/Firms",
+                    ModuleId = 3,
                     CreatedOn = DateTime.Now
                 }
             );
@@ -49,11 +73,19 @@ namespace EMSApp.Infrastructure.Data.Helper
             modelBuilder.Entity<Action>().HasData(
                 new Action
                 {
+                    Id = 7,
+                    Name = "view",
+                    Url = null,
+                    CreatedOn = DateTime.Now,
+                    PageId = 1
+                },
+                new Action
+                {
                     Id = 1,
                     Name = "create",
                     Url = "create",
                     CreatedOn = DateTime.Now,
-                    PageId = 1
+                    PageId = 2
                 },
                 new Action
                 {
@@ -61,7 +93,7 @@ namespace EMSApp.Infrastructure.Data.Helper
                     Name = "edit",
                     Url = "edit",
                     CreatedOn = DateTime.Now,
-                    PageId = 1
+                    PageId = 2
                 },
                 new Action
                 {
@@ -69,7 +101,7 @@ namespace EMSApp.Infrastructure.Data.Helper
                     Name = "delete",
                     Url = null,
                     CreatedOn = DateTime.Now,
-                    PageId = 1
+                    PageId = 2
                 },
                 new Action
                 {
@@ -77,7 +109,7 @@ namespace EMSApp.Infrastructure.Data.Helper
                     Name = "create",
                     Url = "create",
                     CreatedOn = DateTime.Now,
-                    PageId = 2
+                    PageId = 3
                 },
                 new Action
                 {
@@ -85,7 +117,7 @@ namespace EMSApp.Infrastructure.Data.Helper
                     Name = "edit",
                     Url = "edit",
                     CreatedOn = DateTime.Now,
-                    PageId = 2
+                    PageId = 3
                 },
                 new Action
                 {
@@ -93,7 +125,7 @@ namespace EMSApp.Infrastructure.Data.Helper
                     Name = "delete",
                     Url = null,
                     CreatedOn = DateTime.Now,
-                    PageId = 2
+                    PageId = 3
                 }
             );
 

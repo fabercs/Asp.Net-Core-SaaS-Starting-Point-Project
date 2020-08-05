@@ -49,7 +49,7 @@ namespace EMSApp.Webapi.Controllers
             var response = await _authService.Verify(tcid, token);
             if (response.Success)
             {
-                return Redirect("http://localhost:3000/accountverified");
+                return Ok();
             }
             else
             {
@@ -58,12 +58,10 @@ namespace EMSApp.Webapi.Controllers
         }
 
         [AllowAnonymous]
-        [TenantRequired]
         [Validate]
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody]LoginRequest loginRequest)
         {
-
             var response = await _authService.Authenticate(loginRequest);
 
             if (!response.Success)
@@ -74,7 +72,7 @@ namespace EMSApp.Webapi.Controllers
 
             var userDto = Mapper.Map<UserDto>(authResponse.User);
             userDto.PermittedPages = Mapper.Map<List<PageDto>>(authResponse.Modules.SelectMany(m => m.Pages));
-            userDto.Tenant = Mapper.Map<TenantDto>(TenantContext.Tenant);
+            userDto.Tenant = Mapper.Map<TenantDto>(authResponse.User.Tenant);
             
             return Ok(new { 
                 accessToken = authResponse.AccessToken.Token,

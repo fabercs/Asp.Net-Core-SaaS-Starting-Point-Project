@@ -1,5 +1,4 @@
 ﻿using EMSApp.Core.Interfaces;
-using EMSApp.Infrastructure.Data.DbContextConfig;
 using EMSApp.Webapi.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +15,7 @@ namespace EMSApp.Webapi.Extensions
         {
             builder.UseMiddleware<TenantContextMiddleware>();
         }
+        
         public static async void UseEnsureMigrations(this IApplicationBuilder builder)
         {
             using var serviceScope = builder.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
@@ -43,6 +43,7 @@ namespace EMSApp.Webapi.Extensions
                 PushLatestScriptToStorage(dummyDbContext.Database.GenerateCreateScript());
             }
         }
+        
         private static void PushLatestScriptToStorage(string latestSqlScript)
         {
             using (StreamWriter sw = new StreamWriter(@"D:\SqlScript\latest.sql"))
@@ -50,6 +51,7 @@ namespace EMSApp.Webapi.Extensions
                 sw.Write(latestSqlScript);
             }
         }
+        
         //TODO : do we need missing tenant middleware?
         public static IApplicationBuilder MissingTenantMiddleware(this IApplicationBuilder builder, string missingTenantUrl)
         {

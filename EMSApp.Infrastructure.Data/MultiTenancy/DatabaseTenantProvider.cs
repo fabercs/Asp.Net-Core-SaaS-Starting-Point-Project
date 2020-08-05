@@ -42,9 +42,13 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
 
         public async Task<Tenant> GetCurrentTenant()
         {
+            var tenantId = _httpContextAccessor.HttpContext.Request.Headers["X-TenantId"].ToString();
+
+            if (string.IsNullOrWhiteSpace(tenantId))
+                return _tenant;
+
             await LoadTenantsFromDatabase();
-            var host = _httpContextAccessor.HttpContext.Request.Headers["X-Tenant"].ToString();
-            var tenant = _tenants.FirstOrDefault(t => t.Host.ToLower() == host?.ToLower());
+            var tenant = _tenants.FirstOrDefault(t => t.Id == Guid.Parse(tenantId));
             if (tenant != null)
             {
                 _tenant = tenant;

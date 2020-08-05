@@ -14,8 +14,8 @@ namespace EMSApp.Core.Services
     public interface IRoleService
     {
         Task<IEnumerable<ApplicationRole>> GetAll();
-        Task<Response<List<Module>>> GetRolePermissions(string id);
-        Task<Response<List<Module>>> GetRolesPermissions(string[] id);
+        Task<Response<List<Module>>> GetRolePermissions(string id, Guid tenantId);
+        Task<Response<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId);
         Task<Response<bool>> CreateRole(string roleName);
         Task<Response<bool>> DeleteRole(string roleName);
         
@@ -74,12 +74,12 @@ namespace EMSApp.Core.Services
          => await _roleManager.Roles.Where(r => r.TenantId == TenantContext.Tenant.Id)
             .ToListAsync();
 
-        public async Task<Response<List<Module>>> GetRolePermissions(string id)
+        public async Task<Response<List<Module>>> GetRolePermissions(string id, Guid tenantId)
         {
             var response = new Response<List<Module>> { Success = true };
             var modules = await AppRepository.GetAsync<Module>(
                 m => m.Pages.SelectMany(p => p.Actions).SelectMany(a => a.AppRoleActions)
-                .Any(ar => ar.ApplicationRole.Name == id && ar.ApplicationRole.TenantId == TenantContext.Tenant.Id)
+                .Any(ar => ar.ApplicationRole.Name == id && ar.ApplicationRole.TenantId == tenantId)
                 ,
                 includeProperties: "Pages.Actions.AppRoleActions.ApplicationRole");
 
@@ -87,12 +87,12 @@ namespace EMSApp.Core.Services
             return response;
         }
 
-        public async Task<Response<List<Module>>> GetRolesPermissions(string[] id)
+        public async Task<Response<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId)
         {
             var response = new Response<List<Module>> { Success = true };
             var modules = await HostRepository.GetAsync<Module>(
                 m => m.Pages.SelectMany(p => p.Actions).SelectMany(a => a.AppRoleActions)
-                .Any(ar => id.Contains(ar.ApplicationRole.Name) && ar.ApplicationRole.TenantId == TenantContext.Tenant.Id)
+                .Any(ar => id.Contains(ar.ApplicationRole.Name) && ar.ApplicationRole.TenantId == tenantId)
                 ,
                 includeProperties: "Pages.Actions.AppRoleActions.ApplicationRole");
 

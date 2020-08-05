@@ -15,7 +15,7 @@ namespace EMSApp.Core
             { "register_tenant_exist","TenantExist" },
             { "no_tenant", "NoTenant" },
             { "no_tenant_contact", "NoTenantContact" },
-            { "no_valid_token","NoValidToken" },
+            { "token_issued","TokenIssued" },
             { "token_expired", "TokenExpired" },
             { "server_error","ServerError" },
             { "auth_invalid_user_pass", "InvalidUserOrPass" },

@@ -129,9 +129,6 @@
   <data name="NoTenantContact" xml:space="preserve">
     <value>Tenant contact could not be found</value>
   </data>
-  <data name="NoValidToken" xml:space="preserve">
-    <value>Token is not valid</value>
-  </data>
   <data name="PasswordMismatch" xml:space="preserve">
     <value>Passwords does not match</value>
   </data>
@@ -143,6 +140,9 @@
   </data>
   <data name="TokenExpired" xml:space="preserve">
     <value>Token has expired</value>
+  </data>
+  <data name="TokenIssued" xml:space="preserve">
+    <value>Token is issued</value>
   </data>
   <data name="TokenMismatch" xml:space="preserve">
     <value>Tokens does not match</value>

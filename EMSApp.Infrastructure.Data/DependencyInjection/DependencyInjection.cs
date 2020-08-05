@@ -26,7 +26,8 @@ namespace EMSApp.Infrastructure.Data.DependencyInjection
             {
                 opt.SignIn.RequireConfirmedEmail = true;
                 opt.Password.RequireNonAlphanumeric = false;
-                opt.Password.RequireUppercase = false;
+                opt.Password.RequireUppercase = true;
+                opt.Password.RequireLowercase = true;
             })
             .AddEntityFrameworkStores<EMSHostDbContext>()
             .AddDefaultTokenProviders();

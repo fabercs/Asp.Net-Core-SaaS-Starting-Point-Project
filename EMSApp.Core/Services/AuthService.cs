@@ -163,11 +163,11 @@ namespace EMSApp.Core.Services
                     return response;
                 }
 
-                var validToken = tenantContact.Tokens.FirstOrDefault(t => t.Name == "EmailConfirmationToken" && t.Valid);
+                var validToken = tenantContact.Tokens.FirstOrDefault(t => t.Value == token);
 
-                if (validToken == null)
+                if (validToken != null && !validToken.Valid)
                 {
-                    response.Errors.Add(_EP.GetError("no_valid_token"));
+                    response.Errors.Add(_EP.GetError("token_issued"));
                     return response;
                 }
 
@@ -202,22 +202,17 @@ namespace EMSApp.Core.Services
             var response = new Response<AuthResponse>();
             try
             {
-                var tenantId = TenantContext.Tenant.Id;
                 var user = await _userManager.FindByEmailAsync(loginRequest.Username);
                 if (user != null)
                 {
-                    if(user.TenantId != tenantId)
-                    {
-                        Logger.LogWarning($"{loginRequest.Username} tried to log in to app {tenantId}");
-                        response.Errors.Add(_EP.GetError("auth_invalid_user_pass"));
-                        return response;
-                    }
                     var result = await _signInManager.PasswordSignInAsync(user, loginRequest.Password, true, false);
                     if (result.Succeeded)
                     {
                         response.Success = true;
                         var roles = await _userManager.GetRolesAsync(user);
-                        var permissions = await _roleService.GetRolesPermissions(roles.ToArray());
+                        var permissions = await _roleService.GetRolesPermissions(roles.ToArray(), user.TenantId);
+                        var tenant = await _tenantService.GetTenantById(user.TenantId);
+                        user.Tenant = tenant;
                         
                         var authResponse = await _jwtTokenFactory.GenerateAuthResponseForUser(user);
                         authResponse.User = user;
@@ -469,8 +464,8 @@ namespace EMSApp.Core.Services
         {
             var tenantContact = tenant.Responsibles.FirstOrDefault();
             var emailConfirmationToken = tenantContact.Tokens.FirstOrDefault(t => t.Name == "EmailConfirmationToken");
-            var basePath = _configuration.GetValue<string>("HostBasePath");
-            var callbackUrl = $"{basePath}/api/auth/verify?tcid={tenantContact.Id}&token={emailConfirmationToken.Value}";
+            var basePath = _configuration.GetValue<string>("AppBasePath");
+            var callbackUrl = $"{basePath}/completeregister?tcid={tenantContact.Id}&token={emailConfirmationToken.Value}";
             var message = $"Please verify your email by clicking {callbackUrl}";
 
             await _emailService.SendEmailAsync(tenant.Responsibles.FirstOrDefault()?.Email, "ExMS Verify your email",

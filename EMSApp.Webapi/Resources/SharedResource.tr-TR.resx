@@ -129,9 +129,6 @@
   <data name="NoTenantContact" xml:space="preserve">
     <value>Uygulama(tenant) sorumlusu bulunamadı</value>
   </data>
-  <data name="NoValidToken" xml:space="preserve">
-    <value>Token geçerli değil</value>
-  </data>
   <data name="PasswordMismatch" xml:space="preserve">
     <value>Girilen şifreler birbiriyle uyuşmuyor</value>
   </data>
@@ -143,6 +140,9 @@
   </data>
   <data name="TokenExpired" xml:space="preserve">
     <value>Token'ın süresi geçmiş</value>
+  </data>
+  <data name="TokenIssued" xml:space="preserve">
+    <value>Token kullanılmış</value>
   </data>
   <data name="TokenMismatch" xml:space="preserve">
     <value>Token'lar uyuşmuyor</value>
