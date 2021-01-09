@@ -27,7 +27,7 @@ namespace EMSApp.Webapi.Extensions
                 serviceScope.ServiceProvider.GetService(typeof(IDesignTimeDbContextFactory<DbContext>));
 
             var dummyDbContext = dbContextFactory.CreateDbContext(null);
-            var dbUpdateExist = dummyDbContext.Database.GetPendingMigrations().Count() > 0;
+            var dbUpdateExist = dummyDbContext.Database.GetPendingMigrations().Any();
 
             if (dbUpdateExist)
             {
@@ -46,10 +46,8 @@ namespace EMSApp.Webapi.Extensions
         
         private static void PushLatestScriptToStorage(string latestSqlScript)
         {
-            using (StreamWriter sw = new StreamWriter(@"D:\SqlScript\latest.sql"))
-            {
-                sw.Write(latestSqlScript);
-            }
+            using StreamWriter sw = new StreamWriter(@"D:\SqlScript\latest.sql");
+            sw.Write(latestSqlScript);
         }
         
         //TODO : do we need missing tenant middleware?

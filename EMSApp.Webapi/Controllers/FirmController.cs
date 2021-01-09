@@ -132,10 +132,13 @@ namespace EMSApp.Webapi.Controllers
             var firmContact = response.Data;
             Mapper.Map(firmContactCreateDto, firmContact);
 
-            var updResponse = await _firmService.UpdateFirmContact(firmContact);
-            if (!updResponse.IsSuccess)
+            if (firmId == firmContact.FirmId)
             {
-                return BadRequest(response.Errors);
+                var updResponse = await _firmService.UpdateFirmContact(firmContact);
+                if (!updResponse.IsSuccess)
+                {
+                    return BadRequest(response.Errors);
+                }
             }
             return Ok();
         }

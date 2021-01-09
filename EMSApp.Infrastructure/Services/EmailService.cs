@@ -26,9 +26,9 @@ namespace EMSApp.Infrastructure
                 msg.HtmlContent = message;
                 await client.SendEmailAsync(msg);
             }
-            catch(Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
             
         }

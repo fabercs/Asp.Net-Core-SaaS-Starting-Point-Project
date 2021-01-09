@@ -383,9 +383,9 @@ namespace EMSApp.Core.Services
                 var sqlCommand = "INSERT INTO public.\"AspNetUserRoles\"(\"UserId\", \"RoleId\") VALUES(@userId, @roleId)";
                 await _hostRepository.ExecuteSqlCommand(sqlCommand, userId, roleId);
             }
-            catch(Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
 
         }
@@ -408,7 +408,7 @@ namespace EMSApp.Core.Services
         /// be fetched here, for generating new tenant's db
         /// </summary>
         /// <returns></returns>
-        private async Task<string> GetDbScript()
+        private static async Task<string> GetDbScript()
         {
             //TODO: Implement cloud storage
             var rawSql = "";
@@ -418,12 +418,12 @@ namespace EMSApp.Core.Services
             }
             return rawSql.Replace("GO", string.Empty);
         }
-        private string GenerateConnectionString(string dbName)
+        private static string GenerateConnectionString(string dbName)
         {
             //TODO: parametric connectionstring template
             return $"User ID=postgres;Password=Alk11-99;Server=localhost;Port=5432;Database={dbName};Integrated Security=true;Pooling=true;";
         }
-        private string CreateDbName(string appname)
+        private static string CreateDbName(string appname)
         {
             var uid = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
             return $"{appname}_{uid.ToLower()}";
@@ -460,7 +460,7 @@ namespace EMSApp.Core.Services
                 return null;
             }
         }
-        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+        private static bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
         {
             return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
                    jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
