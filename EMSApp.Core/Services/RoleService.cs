@@ -31,43 +31,38 @@ namespace EMSApp.Core.Services
 
         public async Task<Response<bool>> CreateRole(string roleName)
         {
-            var response = new Response<bool>();
             var result = await _roleManager.CreateAsync(new ApplicationRole
             {
                 Name = roleName,
                 NormalizedName = roleName,
                 TenantId = TenantContext.Tenant.Id
             });
+
+            var roleErrors = new List<Error>();
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    response.Errors.Add(new Error { Description = error.Description });
+                    roleErrors.Add(new Error { Description = error.Description });
                 }
+                return Response.Fail<bool>(roleErrors);
             }
-            else
-            {
-                response.Success = true;
-            }
-            return response;
+            return Response.Ok(true);
         }
         public async Task<Response<bool>> DeleteRole(string roleName)
         {
-            var response = new Response<bool>();
             var role = await _roleManager.FindByNameAsync(roleName);
             var result = await _roleManager.DeleteAsync(role);
+
+            var roleErrors = new List<Error>();
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    response.Errors.Add(new Error { Description = error.Description });
+                    roleErrors.Add(new Error { Description = error.Description });
                 }
             }
-            else
-            {
-                response.Success = true;
-            }
-            return response;
+            return Response.Ok(true);
         }
 
         public async Task<IEnumerable<ApplicationRole>> GetAll()
@@ -76,28 +71,22 @@ namespace EMSApp.Core.Services
 
         public async Task<Response<List<Module>>> GetRolePermissions(string id, Guid tenantId)
         {
-            var response = new Response<List<Module>> { Success = true };
             var modules = await AppRepository.GetAsync<Module>(
                 m => m.Pages.SelectMany(p => p.Actions).SelectMany(a => a.AppRoleActions)
-                .Any(ar => ar.ApplicationRole.Name == id && ar.ApplicationRole.TenantId == tenantId)
-                ,
+                .Any(ar => ar.ApplicationRole.Name == id && ar.ApplicationRole.TenantId == tenantId),
                 includeProperties: "Pages.Actions.AppRoleActions.ApplicationRole");
 
-            response.Data = modules.ToList();
-            return response;
+            return Response.Ok(modules.ToList());
         }
 
         public async Task<Response<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId)
         {
-            var response = new Response<List<Module>> { Success = true };
             var modules = await HostRepository.GetAsync<Module>(
                 m => m.Pages.SelectMany(p => p.Actions).SelectMany(a => a.AppRoleActions)
-                .Any(ar => id.Contains(ar.ApplicationRole.Name) && ar.ApplicationRole.TenantId == tenantId)
-                ,
+                .Any(ar => id.Contains(ar.ApplicationRole.Name) && ar.ApplicationRole.TenantId == tenantId),
                 includeProperties: "Pages.Actions.AppRoleActions.ApplicationRole");
 
-            response.Data = modules.ToList();
-            return response;
+            return Response.Ok(modules.ToList());
         }
     }
 }

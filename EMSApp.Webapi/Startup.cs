@@ -1,11 +1,9 @@
 using AutoMapper;
 using EMSApp.Core.DependencyInjection;
-using EMSApp.Infrastructure.Data.DbContextConfig;
 using EMSApp.Infrastructure.Data.DependencyInjection;
 using EMSApp.Infrastructure.DependencyInjection;
 using EMSApp.Webapi.DependencyInjection;
 using EMSApp.Webapi.Extensions;
-using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

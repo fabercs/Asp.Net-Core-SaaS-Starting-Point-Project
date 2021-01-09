@@ -73,7 +73,7 @@ namespace EMSApp.Webapi.Controllers
         {
             var firm = Mapper.Map<Firm>(firmCreateDto);
             var response = await _firmService.Create(firm);
-            if (!response.Success)
+            if (!response.IsSuccess)
             {
                 return BadRequest(response.Errors);
             }
@@ -91,7 +91,7 @@ namespace EMSApp.Webapi.Controllers
             var firmContact = Mapper.Map<FirmContact>(firmContactCreateDto);
             firmContact.FirmId = id;
             var response = await _firmService.CreateFirmContact(firmContact);
-            if (!response.Success)
+            if (!response.IsSuccess)
             {
                 return BadRequest(response.Errors);
             }
@@ -112,7 +112,7 @@ namespace EMSApp.Webapi.Controllers
             Mapper.Map(firmCreateDto, firm);
 
             var updResponse = await _firmService.Update(firm);
-            if (!updResponse.Success)
+            if (!updResponse.IsSuccess)
             {
                 return BadRequest(response.Errors);
             }
@@ -133,7 +133,7 @@ namespace EMSApp.Webapi.Controllers
             Mapper.Map(firmContactCreateDto, firmContact);
 
             var updResponse = await _firmService.UpdateFirmContact(firmContact);
-            if (!updResponse.Success)
+            if (!updResponse.IsSuccess)
             {
                 return BadRequest(response.Errors);
             }

@@ -1,5 +1,4 @@
 ﻿using EMSApp.Core.Interfaces;
-using EMSApp.Infrastructure.Data.DbContextConfig;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

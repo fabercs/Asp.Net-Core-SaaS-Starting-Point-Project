@@ -7,7 +7,7 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
     public class CurrentTenantContextAccessor : ICurrentTenantContextAccessor
     {
         private static AsyncLocal<TenantHolder> _currentTenantContext = new AsyncLocal<TenantHolder>();
-        public ITenantContext CurrentTenant { 
+        public ITenantContext TenantContext { 
             get {
                 return _currentTenantContext.Value?.Context;
             } 

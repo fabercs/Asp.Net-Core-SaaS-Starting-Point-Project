@@ -20,14 +20,17 @@ namespace EMSApp.Core.Services
 
         protected readonly IHostRepository HostRepository;
 
+        protected readonly IErrorProvider _EP;
+
         public BaseService(IServiceProvider serviceProvider)
         {
             L = serviceProvider.GetService<ILocalizationService>();
             Logger = serviceProvider.GetService<ILogger<BaseService>>();
-            TenantContext = serviceProvider.GetService<ICurrentTenantContextAccessor>()?.CurrentTenant;
+            TenantContext = serviceProvider.GetService<ICurrentTenantContextAccessor>()?.TenantContext;
             Cache = serviceProvider.GetService<IMemoryCache>();
             AppRepository = serviceProvider.GetService<IAppRepository>();
             HostRepository = serviceProvider.GetService<IHostRepository>();
+            _EP = serviceProvider.GetService<IErrorProvider>();
         }
     }
 }

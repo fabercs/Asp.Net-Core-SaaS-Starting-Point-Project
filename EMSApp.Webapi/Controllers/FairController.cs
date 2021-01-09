@@ -58,7 +58,7 @@ namespace EMSApp.Webapi.Controllers
         {
             var firm = Mapper.Map<Fair>(fairCreateDto);
             var response = await _fairService.Create(firm);
-            if (!response.Success)
+            if (!response.IsSuccess)
             {
                 return BadRequest(response.Message);
             }
@@ -78,7 +78,7 @@ namespace EMSApp.Webapi.Controllers
             Mapper.Map(fairCreateDto, firm);
 
             var updResponse = await _fairService.Update(firm);
-            if (!updResponse.Success)
+            if (!updResponse.IsSuccess)
             {
                 return BadRequest(response.Errors);
             }
@@ -93,7 +93,7 @@ namespace EMSApp.Webapi.Controllers
                 return BadRequest();
             }
             var response = await _fairService.AddFirmToFair(fairId, firmId);
-            if (!response.Success)
+            if (!response.IsSuccess)
             {
                 return BadRequest(response.Errors);
             }

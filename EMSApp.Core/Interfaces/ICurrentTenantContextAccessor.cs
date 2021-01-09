@@ -7,6 +7,6 @@
     /// </summary>
     public interface ICurrentTenantContextAccessor
     {
-        ITenantContext CurrentTenant { get; set; }
+        ITenantContext TenantContext { get; set; }
     }
 }

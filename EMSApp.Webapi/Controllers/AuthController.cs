@@ -28,7 +28,7 @@ namespace EMSApp.Webapi.Controllers
         {
             var response = await _authService.Register(registerRequest);
 
-            if (!response.Success)
+            if (!response.IsSuccess)
             {
                 return BadRequest(new { errors = response.Errors });
             };
@@ -47,7 +47,7 @@ namespace EMSApp.Webapi.Controllers
                 return BadRequest(new Error { Description = $"{nameof(token)} is not valid" });
 
             var response = await _authService.Verify(tcid, token);
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 return Ok();
             }
@@ -64,7 +64,7 @@ namespace EMSApp.Webapi.Controllers
         {
             var response = await _authService.Authenticate(loginRequest);
 
-            if (!response.Success)
+            if (!response.IsSuccess)
             {
                 return BadRequest(new { errors = response.Errors });
             };
@@ -88,7 +88,7 @@ namespace EMSApp.Webapi.Controllers
         public async Task<IActionResult> RefreshToken([FromBody]ExchangeTokenRequest tokenRequest)
         {
             Response<AuthResponse> response = await _authService.ExchangeRefreshToken(tokenRequest);
-            if (!response.Success)
+            if (!response.IsSuccess)
             {
                 return BadRequest(new { errors = response.Errors });
             };

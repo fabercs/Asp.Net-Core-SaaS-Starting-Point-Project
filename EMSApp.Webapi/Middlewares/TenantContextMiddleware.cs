@@ -13,19 +13,19 @@ namespace EMSApp.Webapi.Middlewares
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, ITenantProvider provider, 
+        public async Task InvokeAsync(HttpContext context, ITenantProvider tenantProvider, 
             ICurrentTenantContextAccessor tenantContextAccessor)
         {
-            var tenant = await provider.GetCurrentTenant();
+            var tenant = await tenantProvider.GetCurrentTenant();
             
             try
             {
-                tenantContextAccessor.CurrentTenant = new TenantContext { Tenant = tenant };
+                tenantContextAccessor.TenantContext = new TenantContext { Tenant = tenant };
                 await _next(context);
             }
             finally
             {
-                tenantContextAccessor.CurrentTenant = null;
+                tenantContextAccessor.TenantContext = null;
             }
         }
     }

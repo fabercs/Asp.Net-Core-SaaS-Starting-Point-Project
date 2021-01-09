@@ -19,7 +19,6 @@ namespace EMSApp.Webapi.DependencyInjection
     {
         public static IServiceCollection AddApiDependencies(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            serviceCollection.AddAutoMapper(Assembly.GetExecutingAssembly());
             serviceCollection.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling =
                 Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 

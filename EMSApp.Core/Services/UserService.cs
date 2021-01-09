@@ -13,7 +13,7 @@ namespace EMSApp.Core.Services
     public interface IUserService
     {
         Task<Response<ApplicationUser>> GetUserById(Guid id);
-        Task<Response<IEnumerable<ApplicationUser>>> GetAllUsersOfTenant(Guid tenantId);
+        Task<Response<List<ApplicationUser>>> GetAllUsersOfTenant(Guid tenantId);
         Task<Response<bool>> Create(ApplicationUser user, string password);
         Task<Response<bool>> Delete(ApplicationUser user);
         Task<Response<bool>> Delete(Guid userId);
@@ -34,131 +34,111 @@ namespace EMSApp.Core.Services
 
         public async Task<Response<bool>> AddToRole(ApplicationUser user, string role)
         {
-            var response = new Response<bool>();
             var result = await _userManager.AddToRoleAsync(user, role);
+            var userManagerErrors = new List<Error>();
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    response.Errors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error { Description = error.Description });
                 }
+                return Response.Fail<bool>(userManagerErrors);
             }
-            else
-            {
-                response.Success = true;
-            }
-            return response;
+            return Response.Ok(true);
         }
 
         public async Task<Response<bool>> Create(ApplicationUser user, string password)
         {
-            var response = new Response<bool>();
             var result = await _userManager.CreateAsync(user, password);
+            var userManagerErrors = new List<Error>();
+
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    response.Errors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error { Description = error.Description });
                 }
+                return Response.Fail<bool>(userManagerErrors);
             }
-            else
-            {
-                response.Success = true;
-            }
-            return response;
+            return Response.Ok(true);
         }
 
         public async Task<Response<bool>> Delete(ApplicationUser user)
         {
-            var response = new Response<bool>();
             var result = await _userManager.DeleteAsync(user);
-            
+            var userManagerErrors = new List<Error>();
+
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    response.Errors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error { Description = error.Description });
                 }
+                return Response.Fail<bool>(userManagerErrors);
             }
-            else
-            {
-                response.Success = true;
-            }
-            return response;
+            return Response.Ok(true);
         }
 
         public async Task<Response<bool>> Delete(Guid userId)
         {
-            var response = new Response<bool>();
+            
             var user = await _userManager.FindByIdAsync(userId.ToString());
             var result = await _userManager.DeleteAsync(user);
+            var userManagerErrors = new List<Error>();
 
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    response.Errors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error { Description = error.Description });
                 }
+                return Response.Fail<bool>(userManagerErrors);
             }
-            else
-            {
-                response.Success = true;
-            }
-            return response;
+            return Response.Ok(true);
         }
 
-        public async Task<Response<IEnumerable<ApplicationUser>>> GetAllUsersOfTenant(Guid tenantId)
+        public async Task<Response<List<ApplicationUser>>> GetAllUsersOfTenant(Guid tenantId)
         {
-            var response = new Response<IEnumerable<ApplicationUser>>();
             var users = await _userManager.Users.Where(u => u.TenantId == tenantId).ToListAsync();
-            response.Data = users;
-            response.Success = true;
-            return response;
+            return Response.Ok(users);
         }
 
         public async Task<Response<ApplicationUser>> GetUserById(Guid id)
         {
-            var response = new Response<ApplicationUser>();
             var user = await _userManager.FindByIdAsync(id.ToString());
-            response.Success = true;
-            response.Data = user;
-            return response;
+            return Response.Ok(user);
         }
 
         public async Task<Response<bool>> RemoveFromRole(ApplicationUser user, string role)
         {
-            var response = new Response<bool>();
             var result = await _userManager.RemoveFromRoleAsync(user, role);
+            var userManagerErrors = new List<Error>();
+
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    response.Errors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error { Description = error.Description });
                 }
+                return Response.Fail<bool>(userManagerErrors);
             }
-            else
-            {
-                response.Success = true;
-            }
-            return response;
+            return Response.Ok(true);
         }
 
         public async Task<Response<bool>> Update(ApplicationUser user)
         {
-            var response = new Response<bool>();
             var result = await _userManager.UpdateAsync(user);
+            var userManagerErrors = new List<Error>();
+
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    response.Errors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error { Description = error.Description });
                 }
+                return Response.Fail<bool>(userManagerErrors);
             }
-            else
-            {
-                response.Success = true;
-            }
-            return response;
+            return Response.Ok(true);
         }
     }
 }

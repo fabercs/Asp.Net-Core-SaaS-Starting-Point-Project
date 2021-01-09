@@ -14,7 +14,7 @@ namespace EMSApp.Webapi.Filters
             var tenantContext = context.HttpContext.RequestServices.GetService<ICurrentTenantContextAccessor>();
             var errorProvider = context.HttpContext.RequestServices.GetService<IErrorProvider>();
 
-            var tenant = tenantContext?.CurrentTenant?.Tenant;
+            var tenant = tenantContext?.TenantContext?.Tenant;
             if (tenant == null)
             {
                 context.Result = new BadRequestObjectResult(new

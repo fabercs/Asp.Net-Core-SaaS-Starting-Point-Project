@@ -57,7 +57,7 @@ namespace EMSApp.Webapi.Controllers
                 TenantId = TenantContext.Tenant.Id
             };
             var response = await _userService.Create(applicationUser, request.Password);
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 return Ok();
             }
@@ -71,7 +71,7 @@ namespace EMSApp.Webapi.Controllers
         public async Task<IActionResult> Delete(Guid userId)
         {
             var response = await _userService.Delete(userId);
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 return Ok();
             }
