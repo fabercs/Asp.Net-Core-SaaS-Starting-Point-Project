@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EMSApp.Core.DTO.Responses
 {
@@ -11,9 +12,9 @@ namespace EMSApp.Core.DTO.Responses
 
         protected Response(bool isSuccess, List<Error> errors, string message)
         {
-            if (isSuccess && errors.Count > 0)
+            if (isSuccess && errors?.Count > 0)
                 throw new InvalidOperationException();
-            if (!isSuccess && errors.Count == 0)
+            if (!isSuccess && errors?.Count == 0)
                 throw new InvalidOperationException();
 
             IsSuccess = isSuccess;
@@ -23,7 +24,7 @@ namespace EMSApp.Core.DTO.Responses
 
         public static Response Ok()
         {
-            return new Response(true, null, null);
+            return new Response(true, default, null);
         }
         public static Response Fail(List<Error> errors, string message=null)
         {
@@ -31,7 +32,7 @@ namespace EMSApp.Core.DTO.Responses
         }
         public static Response<T> Ok<T>(T data)
         {
-            return new Response<T>(data, true, null, null);
+            return new Response<T>(data, true, default, null);
         }
         public static Response<T> Fail<T>(List<Error> errors, string message=null)
         {

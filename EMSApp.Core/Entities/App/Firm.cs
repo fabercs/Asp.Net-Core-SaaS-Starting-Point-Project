@@ -19,7 +19,7 @@ namespace EMSApp.Core.Entities
         public FirmType FirmType { get; set; }
         public FirmStatus FirmStatus { get; set; }
         public ICollection<FirmContact> Contacts { get; set; } = new List<FirmContact>();
-        public ICollection<FairFirm> FairFirm { get; set; } = new List<FairFirm>();
+        public ICollection<Fair> Fairs { get; set; } = new List<Fair>();
         public bool IsDeleted { get; set; }
     }
 }

@@ -66,7 +66,7 @@ namespace EMSApp.Core.Services
         public async Task<Response<Firm>> GetFirmById(Guid id)
         {
             var firm = await AppRepository.GetFirstAsync<Firm>(f=> f.Id == id, 
-                includeProperties: "FairFirm.Fair,Contacts");
+                includeProperties: "Fairs,Contacts");
             return Response.Ok(firm);
         }
 
@@ -84,8 +84,8 @@ namespace EMSApp.Core.Services
 
         public async Task<Response<List<Fair>>> GetFirmFairs(Guid id)
         {
-            var firm = await AppRepository.GetFirstAsync<Firm>(f => f.Id == id, includeProperties: "FairFirm.Fair");
-            return Response.Ok(firm.FairFirm.Select(x=> x.Fair).ToList());
+            var firm = await AppRepository.GetFirstAsync<Firm>(f => f.Id == id, includeProperties: "Fairs");
+            return Response.Ok(firm.Fairs.ToList());
         }
 
         public async Task<Response<Firm>> Update(Firm firm)

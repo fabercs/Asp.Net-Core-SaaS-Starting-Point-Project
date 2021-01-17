@@ -16,7 +16,7 @@ namespace EMSApp.Webapi.AutoMapper
             CreateMap<Fair, FairListDto>();
 
             CreateMap<Fair, FairDetailDto>()
-                .ForMember(dest => dest.FirmList, opt => opt.MapFrom(src=> src.FairFirm.Select(x=> x.Firm)));
+                .ForMember(dest => dest.FirmList, opt => opt.MapFrom(src=> src.Firms));
 
             CreateMap<FirmCreateDto, Firm>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
@@ -29,7 +29,7 @@ namespace EMSApp.Webapi.AutoMapper
                 .ForMember(dest => dest.FirmStatus, opt => opt.MapFrom(src => src.FirmStatus.ToString()))
                 .ForMember(dest => dest.FirmType, opt => opt.MapFrom(src => src.FirmType.ToString()))
                 .ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.Contacts))
-                .ForMember(dest => dest.Fairs, opt => opt.MapFrom(src => src.FairFirm.Select(x => x.Fair)));
+                .ForMember(dest => dest.Fairs, opt => opt.MapFrom(src => src.Fairs));
 
             CreateMap<FirmContactCreateDto, FirmContact>()
                .ForMember(dest => dest.Id, opt => opt.Ignore());

@@ -31,7 +31,7 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ApplicationRole>()
                 .HasIndex("NormalizedName")
-                .HasName("RoleNameIndex")
+                .HasDatabaseName("RoleNameIndex")
                 .IsUnique(false);
 
             modelBuilder.Entity<ApplicationRoleAction>().Ignore("Id");

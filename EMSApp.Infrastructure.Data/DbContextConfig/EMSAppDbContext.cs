@@ -13,8 +13,7 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
     {
         private readonly Tenant _tenant;
 
-        public DbSet<Fair> Fairs { get; set; }
-        public DbSet<FairFirm> FairFirm { get; set; }
+        public DbSet<Fair> Fair { get; set; }
         public DbSet<Firm> Firm { get; set; }
         public DbSet<FirmContact> FirmContact { get; set; }
         public DbSet<Country> Country { get; set; }
@@ -57,14 +56,6 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
                 }
             }
 
-            modelBuilder.Entity<FairFirm>().Ignore("Id");
-            modelBuilder.Entity<FairFirm>()
-                .HasKey(x => new { x.FairId, x.FirmId });
-            modelBuilder.Entity<FairFirm>()
-                .HasOne(x => x.Fair).WithMany(x => x.FairFirm).HasForeignKey(x=>x.FairId);
-            modelBuilder.Entity<FairFirm>()
-                .HasOne(x => x.Firm).WithMany(x => x.FairFirm).HasForeignKey(x => x.FirmId);
-
             modelBuilder.Entity<Country>().HasNoKey().HasIndex("Code");
             modelBuilder.Entity<City>().HasNoKey().HasIndex("Code");
 
@@ -92,7 +83,7 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
             return typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity));
         }
 
-        protected Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>() where TEntity : class
+        protected static Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>() where TEntity : class
         {
             Expression<Func<TEntity, bool>> expression = null;
 
@@ -105,7 +96,7 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
             return expression;
         }
 
-        protected Expression<Func<T, bool>> CombineExpressions<T>(Expression<Func<T, bool>> expression1, Expression<Func<T, bool>> expression2)
+        protected static Expression<Func<T, bool>> CombineExpressions<T>(Expression<Func<T, bool>> expression1, Expression<Func<T, bool>> expression2)
         {
             return ExpressionCombiner.Combine(expression1, expression2);
         }

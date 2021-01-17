@@ -18,6 +18,6 @@ namespace EMSApp.Core.Entities
         public string Description { get; set; }
         public Guid? ResponsibleUserId { get; set; }
 
-        public ICollection<FairFirm> FairFirm { get; set; } = new List<FairFirm>();
+        public ICollection<Firm> Firms { get; set; } = new List<Firm>();
     }
 }
