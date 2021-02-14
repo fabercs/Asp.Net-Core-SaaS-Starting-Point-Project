@@ -295,11 +295,13 @@ namespace EMSApp.Core.Services
 
             var tenantContact = _hostRepository.GetFirst<TenantContact>(tc => tc.Email == email && tc.PasswordHash == password,
                 includeProperties: "Tenant");
+
             var tenant = tenantContact.Tenant;
+            
             if (tenant.ResourcesCreated)
                 return;
 
-            string dbName = CreateDbName(tenant.AppName);
+            string dbName = GenerateDbName(tenant.AppName);
             string connectionString = GenerateConnectionString(dbName);
             string dbScript = await GetDbScript();
 
@@ -423,7 +425,7 @@ namespace EMSApp.Core.Services
             //TODO: parametric connectionstring template
             return $"User ID=postgres;Password=Alk11-99;Server=localhost;Port=5432;Database={dbName};Integrated Security=true;Pooling=true;";
         }
-        private static string CreateDbName(string appname)
+        private static string GenerateDbName(string appname)
         {
             var uid = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
             return $"{appname}_{uid.ToLower()}";

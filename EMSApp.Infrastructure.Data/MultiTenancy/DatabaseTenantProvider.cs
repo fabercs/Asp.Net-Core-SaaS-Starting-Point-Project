@@ -13,7 +13,6 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
     {
         private static List<Tenant> _tenants = new List<Tenant>();
 
-        private Tenant _tenant;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHostRepository _hostRepository;
         private readonly IMemoryCache _memoryCahce;
@@ -45,15 +44,10 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
             var tenantId = _httpContextAccessor.HttpContext.Request.Headers["X-TenantId"].ToString();
 
             if (string.IsNullOrWhiteSpace(tenantId))
-                return _tenant;
+                return null;
 
             await LoadTenantsFromDatabase();
-            var tenant = _tenants.FirstOrDefault(t => t.Id == Guid.Parse(tenantId));
-            if (tenant != null)
-            {
-                _tenant = tenant;
-            }
-            return _tenant;
+            return _tenants.FirstOrDefault(t => t.Id == Guid.Parse(tenantId));
         }
 
         public async Task<List<Tenant>> GetTenants()
