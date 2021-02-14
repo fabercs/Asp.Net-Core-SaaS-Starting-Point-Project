@@ -16,6 +16,7 @@ namespace EMSApp.Webapi.Extensions
             builder.UseMiddleware<TenantContextMiddleware>();
         }
         
+        //TODO: Move this to Program.cs, only when app launches/re-launches
         public static async void UseEnsureMigrations(this IApplicationBuilder builder)
         {
             using var serviceScope = builder.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
