@@ -34,7 +34,7 @@ namespace EMSApp.Webapi.Filters
                     }
                 }
 
-                context.Result = new BadRequestObjectResult(new { errors });
+                context.Result = new BadRequestObjectResult(errors);
                 return;
             }
 

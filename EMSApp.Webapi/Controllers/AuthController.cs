@@ -30,7 +30,7 @@ namespace EMSApp.Webapi.Controllers
 
             if (!response.IsSuccess)
             {
-                return BadRequest(new { errors = response.Errors });
+                return BadRequest(response.Errors);
             };
             return Ok(response.Data);
         }
@@ -53,7 +53,7 @@ namespace EMSApp.Webapi.Controllers
             }
             else
             {
-                return BadRequest(new { errors = response.Errors });
+                return BadRequest(response.Errors);
             }
         }
 
@@ -66,7 +66,7 @@ namespace EMSApp.Webapi.Controllers
 
             if (!response.IsSuccess)
             {
-                return BadRequest(new { errors = response.Errors });
+                return BadRequest(response.Errors);
             };
             var authResponse = response.Data;
 
@@ -90,7 +90,7 @@ namespace EMSApp.Webapi.Controllers
             Response<AuthResponse> response = await _authService.ExchangeRefreshToken(tokenRequest);
             if (!response.IsSuccess)
             {
-                return BadRequest(new { errors = response.Errors });
+                return BadRequest(response.Errors);
             };
             return Ok(response.Data);
         }

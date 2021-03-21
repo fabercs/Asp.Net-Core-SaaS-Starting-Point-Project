@@ -44,7 +44,7 @@ namespace EMSApp.Webapi.Controllers
         {
             if (request.Password != request.PasswordAgain)
             {
-                return BadRequest(new { errors = _EP.GetError("password_mismatch") });
+                return BadRequest(_EP.GetError("password_mismatch"));
             }
             var applicationUser = new ApplicationUser
             {
@@ -63,7 +63,7 @@ namespace EMSApp.Webapi.Controllers
             }
             else
             {
-                return BadRequest(new { errors = response.Errors });
+                return BadRequest(response.Errors);
             }
         }
 
@@ -77,7 +77,7 @@ namespace EMSApp.Webapi.Controllers
             }
             else
             {
-                return BadRequest(new { errors = response.Errors });
+                return BadRequest(response.Errors);
             }
         }
     }
