@@ -61,6 +61,7 @@ namespace EMSApp.Core.Services
                 {
                     roleErrors.Add(new Error { Description = error.Description });
                 }
+                return Response.Fail<bool>(roleErrors);
             }
             return Response.Ok(true);
         }

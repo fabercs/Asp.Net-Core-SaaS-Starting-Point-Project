@@ -39,8 +39,6 @@ namespace EMSApp.Webapi
             services.AddInfrastructureDependencies();
             services.AddInfraDataDependencies(Configuration);
             services.AddApiDependencies(Configuration);
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

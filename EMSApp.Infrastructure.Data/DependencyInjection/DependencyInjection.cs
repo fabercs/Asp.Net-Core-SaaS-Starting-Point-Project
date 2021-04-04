@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace EMSApp.Infrastructure.Data.DependencyInjection
 {
@@ -21,8 +20,8 @@ namespace EMSApp.Infrastructure.Data.DependencyInjection
                 opt.UseNpgsql(configuration.GetConnectionString("HostConnectionString"));
             });
             serviceCollection.AddDbContext<EMSAppDbContext>();
-            
-            serviceCollection.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
+
+            var identityBuilder = serviceCollection.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
             {
                 opt.SignIn.RequireConfirmedEmail = true;
                 opt.Password.RequireNonAlphanumeric = false;
@@ -30,7 +29,8 @@ namespace EMSApp.Infrastructure.Data.DependencyInjection
                 opt.Password.RequireLowercase = true;
             })
             .AddEntityFrameworkStores<EMSHostDbContext>()
-            .AddDefaultTokenProviders();
+            .AddDefaultTokenProviders()
+            .AddErrorDescriber<MutliLangErrorDescriber>();
 
             serviceCollection.AddScoped<ITenantProvider, DatabaseTenantProvider>();
             serviceCollection.AddScoped<ICurrentTenantContextAccessor, CurrentTenantContextAccessor>();
