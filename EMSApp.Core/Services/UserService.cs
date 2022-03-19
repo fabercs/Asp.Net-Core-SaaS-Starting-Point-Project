@@ -1,6 +1,7 @@
 ﻿using EMSApp.Core.DTO;
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Entities;
+using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,9 +26,7 @@ namespace EMSApp.Core.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserService(
-            UserManager<ApplicationUser> userManager,
-            IServiceProvider provider) : base(provider)
+        public UserService(UserManager<ApplicationUser> userManager, ILazyServiceProvider serviceProvider) : base(serviceProvider)
         {
             _userManager = userManager;
         }

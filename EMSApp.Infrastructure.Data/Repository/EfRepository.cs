@@ -225,7 +225,7 @@ namespace EMSApp.Infrastructure.Data.Repository
             {
                 context.SaveChanges();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }
@@ -237,7 +237,7 @@ namespace EMSApp.Infrastructure.Data.Repository
             {
                 return context.SaveChangesAsync();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }

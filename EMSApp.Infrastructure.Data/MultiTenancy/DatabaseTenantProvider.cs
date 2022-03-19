@@ -31,9 +31,9 @@ namespace EMSApp.Infrastructure.Data.MultiTenancy
             var tenants = await _memoryCahce.GetOrCreateAsync("tenants", async t =>
             {
                 t.SetSlidingExpiration(TimeSpan.FromMinutes(30));
-                var list = await _hostRepository.GetAsync<Tenant>(t => t.ResourcesCreated, 
+                var tenantList = await _hostRepository.GetAsync<Tenant>(t => t.ResourcesCreated, 
                     includeProperties:"TenantSetting");
-                return list.ToList();
+                return tenantList.ToList();
             });
             
             _tenants = tenants.ToList();

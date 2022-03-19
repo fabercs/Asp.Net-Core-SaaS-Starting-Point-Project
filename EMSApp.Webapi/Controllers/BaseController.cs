@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using EMSApp.Core.Interfaces;
+using EMSApp.Shared;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EMSApp.Webapi.Controllers
 {
@@ -10,14 +11,12 @@ namespace EMSApp.Webapi.Controllers
     [Route("api/[controller]")]
     public class BaseController<T> : ControllerBase
     {
-        private ITenantContext _tenantContext { get; set; }
-        private ILogger<T> _logger;
-        private IMapper _mapper;
-        protected ILogger<T> Logger => _logger ??= HttpContext.RequestServices.GetService<ILogger<T>>();
-        protected IMapper Mapper => _mapper ??= HttpContext.RequestServices.GetService<IMapper>();
-        protected ITenantContext TenantContext => _tenantContext ??= 
-            HttpContext.RequestServices.GetService<ICurrentTenantContextAccessor>().TenantContext;
+        public ILazyServiceProvider LazyServiceProvider =>
+            HttpContext.RequestServices.GetService<ILazyServiceProvider>();
 
+        protected ILogger<T> Logger => LazyServiceProvider.LazyGetService<ILogger<T>>();
+        protected IMapper Mapper => LazyServiceProvider.LazyGetService<IMapper>();
+        protected ITenantContext TenantContext => LazyServiceProvider.LazyGetService<ICurrentTenantContextAccessor>().TenantContext;
         public BaseController(){}
     }
 }

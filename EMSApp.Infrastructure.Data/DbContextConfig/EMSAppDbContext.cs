@@ -12,10 +12,6 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
     public class EMSAppDbContext : DbContext
     {
         private readonly Tenant _tenant;
-
-        public DbSet<Fair> Fair { get; set; }
-        public DbSet<Firm> Firm { get; set; }
-        public DbSet<FirmContact> FirmContact { get; set; }
         public DbSet<Country> Country { get; set; }
         public DbSet<City> City { get; set; }
 

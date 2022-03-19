@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMSApp.Core", "EMSApp.Core\EMSApp.Core.csproj", "{20D5F0BB-2670-413C-AE1E-33B0A79CC97B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EMSApp.Core", "EMSApp.Core\EMSApp.Core.csproj", "{20D5F0BB-2670-413C-AE1E-33B0A79CC97B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMSApp.Infrastructure", "EMSApp.Infrastructure\EMSApp.Infrastructure.csproj", "{B43F2131-A9C0-4438-B209-F871C539FC1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EMSApp.Infrastructure", "EMSApp.Infrastructure\EMSApp.Infrastructure.csproj", "{B43F2131-A9C0-4438-B209-F871C539FC1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMSApp.Webapi", "EMSApp.Webapi\EMSApp.Webapi.csproj", "{715E88ED-FD95-4D8C-ADF0-65E04669EC09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EMSApp.Webapi", "EMSApp.Webapi\EMSApp.Webapi.csproj", "{715E88ED-FD95-4D8C-ADF0-65E04669EC09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMSApp.Infrastructure.Data", "EMSApp.Infrastructure.Data\EMSApp.Infrastructure.Data.csproj", "{830B1084-8A53-40A4-9D72-C671C3B5EC40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EMSApp.Infrastructure.Data", "EMSApp.Infrastructure.Data\EMSApp.Infrastructure.Data.csproj", "{830B1084-8A53-40A4-9D72-C671C3B5EC40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMSApp.Tests", "EMSApp.Tests\EMSApp.Tests.csproj", "{5465FA8B-3BB5-4F88-BB18-5DCAE95A9D3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EMSApp.Shared", "EMSApp.Shared\EMSApp.Shared.csproj", "{EC75758D-A789-4B50-9700-C5D47FAE4B38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{830B1084-8A53-40A4-9D72-C671C3B5EC40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{830B1084-8A53-40A4-9D72-C671C3B5EC40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{830B1084-8A53-40A4-9D72-C671C3B5EC40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5465FA8B-3BB5-4F88-BB18-5DCAE95A9D3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5465FA8B-3BB5-4F88-BB18-5DCAE95A9D3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5465FA8B-3BB5-4F88-BB18-5DCAE95A9D3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5465FA8B-3BB5-4F88-BB18-5DCAE95A9D3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC75758D-A789-4B50-9700-C5D47FAE4B38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC75758D-A789-4B50-9700-C5D47FAE4B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC75758D-A789-4B50-9700-C5D47FAE4B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC75758D-A789-4B50-9700-C5D47FAE4B38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

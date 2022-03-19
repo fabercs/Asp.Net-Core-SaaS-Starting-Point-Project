@@ -22,9 +22,5 @@ namespace EMSApp.Core.Entities
         object IEntity.Id { get => this.Id; set { } }
     }
 
-    public abstract class BaseEntity : BaseEntity<Guid>
-    {
-
-    }
-
+    public abstract class BaseEntity : BaseEntity<Guid>{}
 }

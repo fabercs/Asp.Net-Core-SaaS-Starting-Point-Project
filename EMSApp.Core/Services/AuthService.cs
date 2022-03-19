@@ -4,6 +4,7 @@ using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
 using EMSApp.Core.Validator;
+using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -53,8 +54,7 @@ namespace EMSApp.Core.Services
             IJwtAuthResponseFactory jwtTokenFactory,
             TokenValidationParameters tokenValidationParameters,
             IHostRepository hostRepository,
-            ITenantService tenantService,
-            IServiceProvider provider) : base(provider)
+            ITenantService tenantService, ILazyServiceProvider serviceProvider) : base(serviceProvider)
         {
             _emailService = emailService;
             _encryptionService = encryptionService;
@@ -74,7 +74,7 @@ namespace EMSApp.Core.Services
             try
             {
                 var existingTenant = await _tenantService.GetTenantByHostname(registerRequest.Appname);
-                if( existingTenant!= null)
+                if (existingTenant != null)
                 {
                     return Response.Fail<RegisterResponse>(new List<Error> { _EP.GetError("register_tenant_exist") });
                 }
@@ -91,56 +91,17 @@ namespace EMSApp.Core.Services
                     return Response.Fail<RegisterResponse>(new List<Error> { _EP.GetError("register_email_in_use") });
                 }
 
-                var tenant = new Tenant
-                {
-                    AppName = registerRequest.Appname.Trim(),
-                    Host = registerRequest.Hostname.Trim(),
-                    Responsibles = new List<TenantContact>
-                {
-                    new TenantContact {
-                        Email = registerRequest.Email,
-                        Name = registerRequest.Name,
-                        EmailConfirmed = false,
-                        PasswordHash = _encryptionService.Encrypt(registerRequest.Password),
-                        Surname = registerRequest.Surname,
-                        Tokens = new List<TenantContactToken>
-                        {
-                            new TenantContactToken
-                            {
-                                Name = "EmailConfirmationToken",
-                                Valid = true,
-                                Value = Guid.NewGuid().ToString().Replace("-",string.Empty)
-                            }
-                        }
-                    }
-                },
-                    TenantSetting = new TenantSetting { Language = "tr-TR" }
-                };
-
-                var tenantLicence = new TenantLicence
-                {
-                    Tenant = tenant,
-                    Licence = new Licence { LicenceType = Enums.LicenceType.Trial }
-                };
-
-                tenant.Licences = new List<TenantLicence> { tenantLicence };
-
-                //finally insert tenant to host database (and additional other info)
-                _hostRepository.Create(tenant);
-                await _hostRepository.SaveAsync();
-
+                Tenant tenant = await CreatePoteantialTenant(registerRequest);
                 await ComposeEmailVerificationEmail(tenant);
 
                 return Response.Ok(new RegisterResponse());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.LogError(ex.Message, ex);
                 return Response.Fail<RegisterResponse>(new List<Error> { _EP.GetError("server_error") });
             }
-            
         }
-
         public async Task<Response<bool>> Verify(Guid tcid, string token)
         {
             try
@@ -180,7 +141,6 @@ namespace EMSApp.Core.Services
                 return Response.Fail<bool>(new List<Error> { _EP.GetError("server_error") });
             }
         }
-
         public async Task<Response<AuthResponse>> Authenticate(LoginRequest loginRequest)
         {
             try
@@ -217,7 +177,6 @@ namespace EMSApp.Core.Services
                 return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("server_error") });
             }
         }
-
         public async Task<Response<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest)
         {
             try
@@ -285,9 +244,47 @@ namespace EMSApp.Core.Services
             }
         }
 
+        private async Task<Tenant> CreatePoteantialTenant(RegisterRequest registerRequest)
+        {
+            var tenant = new Tenant
+            {
+                AppName = registerRequest.Appname.Trim(),
+                Host = registerRequest.Hostname.Trim(),
+                Responsibles = new List<TenantContact>
+                {
+                    new TenantContact {
+                        Email = registerRequest.Email,
+                        Name = registerRequest.Name,
+                        EmailConfirmed = false,
+                        PasswordHash = _encryptionService.Encrypt(registerRequest.Password),
+                        Surname = registerRequest.Surname,
+                        Tokens = new List<TenantContactToken>
+                        {
+                            new TenantContactToken
+                            {
+                                Name = "EmailConfirmationToken",
+                                Valid = true,
+                                Value = Guid.NewGuid().ToString().Replace("-",string.Empty)
+                            }
+                        }
+                    }
+                },
+                TenantSetting = new TenantSetting { Language = "tr-TR" }
+            };
 
-        #region Privates
+            var tenantLicence = new TenantLicence
+            {
+                Tenant = tenant,
+                Licence = new Licence { LicenceType = Enums.LicenceType.Trial }
+            };
 
+            tenant.Licences = new List<TenantLicence> { tenantLicence };
+
+            //finally insert tenant to host database (and additional other info)
+            _hostRepository.Create(tenant);
+            await _hostRepository.SaveAsync();
+            return tenant;
+        }
         private async Task CreateTenantResources(string email, string password)
         {
             _roleManager.RoleValidators.Clear();
@@ -359,7 +356,6 @@ namespace EMSApp.Core.Services
                     string.Join(",", userResult.Errors.Select(r => r.Description)));
             }
         }
-
         private async Task CreateAdminPermissions(ApplicationRole appAdminRole)
         {
             var actions = await _hostRepository.GetAllAsync<Action>();
@@ -374,7 +370,6 @@ namespace EMSApp.Core.Services
             }
             await _hostRepository.SaveAsync();
         }
-
         private async Task AddUserToRole(ApplicationUser applicationUser, ApplicationRole role)
         {
             try
@@ -391,7 +386,6 @@ namespace EMSApp.Core.Services
             }
 
         }
-
         private async Task ReloadTenantsToCache()
         {
             Cache.Remove("tenants");
@@ -402,7 +396,6 @@ namespace EMSApp.Core.Services
                 return list.ToList();
             });
         }
-
         /// <summary>
         /// Sample db script from local storage
         /// In real, this script will be updated from tenant app continuously
@@ -410,7 +403,7 @@ namespace EMSApp.Core.Services
         /// be fetched here, for generating new tenant's db
         /// </summary>
         /// <returns></returns>
-        private static async Task<string> GetDbScript()
+        private async Task<string> GetDbScript()
         {
             //TODO: Implement cloud storage
             var rawSql = "";
@@ -420,12 +413,12 @@ namespace EMSApp.Core.Services
             }
             return rawSql.Replace("GO", string.Empty);
         }
-        private static string GenerateConnectionString(string dbName)
+        private string GenerateConnectionString(string dbName)
         {
             //TODO: parametric connectionstring template
             return $"User ID=postgres;Password=Alk11-99;Server=localhost;Port=5432;Database={dbName};Integrated Security=true;Pooling=true;";
         }
-        private static string GenerateDbName(string appname)
+        private string GenerateDbName(string appname)
         {
             var uid = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
             return $"{appname}_{uid.ToLower()}";
@@ -462,13 +455,11 @@ namespace EMSApp.Core.Services
                 return null;
             }
         }
-        private static bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
         {
             return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
                    jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
                        StringComparison.InvariantCultureIgnoreCase);
         }
-
-        #endregion Privates
     }
 }

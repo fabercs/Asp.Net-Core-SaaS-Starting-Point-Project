@@ -2,17 +2,16 @@
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
+using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace EMSApp.Infrastructure.Auth
 {
@@ -89,7 +88,8 @@ namespace EMSApp.Infrastructure.Auth
                 Token = newToken,
                 JwtId = token.Id,
                 ApplicationUserId = user.Id,
-                ExpiresOn = DateTime.Now.AddMonths(1)
+                //ExpiresOn = DateTime.Now.AddMonths(1)
+                ExpiresOn = DateTime.SpecifyKind(DateTime.Now.AddMonths(1), DateTimeKind.Utc)
             };
 
             _hostRepository.Create(refreshToken);

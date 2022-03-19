@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace EMSApp.Infrastructure.Data.DependencyInjection
 {
@@ -16,6 +17,7 @@ namespace EMSApp.Infrastructure.Data.DependencyInjection
         public static IServiceCollection AddInfraDataDependencies(this IServiceCollection serviceCollection,
             IConfiguration configuration)
         {
+            
             serviceCollection.AddDbContext<EMSHostDbContext>(opt => {
                 opt.UseNpgsql(configuration.GetConnectionString("HostConnectionString"));
             });

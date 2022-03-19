@@ -49,7 +49,7 @@ namespace EMSApp.Core.DTO.Responses
             get
             {
                 if (!IsSuccess)
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException("Can't return data if response.IsSuccess is false!");
 
                 return _data;
             }

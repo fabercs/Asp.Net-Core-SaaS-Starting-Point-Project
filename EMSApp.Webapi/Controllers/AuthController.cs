@@ -1,4 +1,4 @@
-﻿using EMSApp.Core.DTO;
+﻿ using EMSApp.Core.DTO;
 using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Services;
@@ -73,7 +73,7 @@ namespace EMSApp.Webapi.Controllers
             var userDto = Mapper.Map<UserDto>(authResponse.User);
             userDto.PermittedPages = Mapper.Map<List<PageDto>>(authResponse.Modules.SelectMany(m => m.Pages));
             userDto.Tenant = Mapper.Map<TenantDto>(authResponse.User.Tenant);
-            
+
             return Ok(new { 
                 accessToken = authResponse.AccessToken.Token,
                 accessTokenExpires = authResponse.AccessToken.ExpiresIn,

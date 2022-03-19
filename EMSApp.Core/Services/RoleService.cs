@@ -1,6 +1,7 @@
 ﻿using EMSApp.Core.DTO;
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Entities;
+using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -24,7 +25,7 @@ namespace EMSApp.Core.Services
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
 
-        public RoleService(RoleManager<ApplicationRole> roleManager, IServiceProvider provider) : base(provider)
+        public RoleService(RoleManager<ApplicationRole> roleManager, ILazyServiceProvider serviceProvider) : base(serviceProvider)
         {
             _roleManager = roleManager;
         }

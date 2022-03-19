@@ -1,5 +1,6 @@
 ﻿using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
+using EMSApp.Shared;
 using System;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace EMSApp.Core.Services
     {
         private readonly IHostRepository _hostRepository;
 
-        public TenantService(IHostRepository hostRepository,IServiceProvider provider) : base(provider)
+        public TenantService(IHostRepository hostRepository, ILazyServiceProvider serviceProvider) : base(serviceProvider)
         {
             _hostRepository = hostRepository;
         }

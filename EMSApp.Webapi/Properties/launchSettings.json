@@ -17,9 +17,9 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "FMS.Webapi": {
+    "EMSApp.Webapi": {
       "commandName": "Project",
-      "launchUrl": "weatherforecast",
+      "launchUrl": "",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
