@@ -3,6 +3,7 @@ using System;
 using EMSApp.Infrastructure.Data.DbContextConfig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EMSApp.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(EMSHostDbContext))]
-    partial class EMSHostDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220330195826_version-column-2")]
+    partial class versioncolumn2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

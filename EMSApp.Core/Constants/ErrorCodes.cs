@@ -8,7 +8,7 @@ namespace EMSApp.Core
         /// ErrorCode Dictionary, key is the error code which will be informative for client,
         /// and value is the localization resource key value.
         /// </summary>
-        public static Dictionary<string, string> Errors = new Dictionary<string, string>
+        public static readonly Dictionary<string, string> Errors = new()
         {
             { "register_password_mismatch", "PasswordMismatch" },
             { "register_email_in_use", "EmailInUse"},

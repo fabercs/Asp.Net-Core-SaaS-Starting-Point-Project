@@ -1,4 +1,5 @@
 ﻿using EMSApp.Core.Interfaces;
+using EMSApp.Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

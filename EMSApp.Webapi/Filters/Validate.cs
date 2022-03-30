@@ -1,41 +1,28 @@
-﻿using EMSApp.Core.DTO;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Filters
 {
-    public class Validate: Attribute, IAsyncActionFilter
+    public class Validate : IAsyncActionFilter
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (!context.ModelState.IsValid)
             {
-                var errorsInModelState = context.ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
-                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(x => x.ErrorMessage)).ToArray();
-
-                List<Error> errors = new List<Error>();
-
-                foreach (var error in errorsInModelState)
+                var errors = context.ModelState
+                .Where(a => a.Value.Errors.Count > 0)
+                .SelectMany(x => x.Value.Errors.Select(y => y.ErrorMessage))
+                .ToList();
+                if (errors.Any())
                 {
-                    foreach (var subError in error.Value)
-                    {
-                        var errorModel = new Error
-                        {
-                            Code = error.Key,
-                            Description = subError
-                        };
-
-                        errors.Add(errorModel);
-                    }
+                    var details = new StringBuilder("Next validation error(s) occured:");
+                    foreach (var error in errors) details.Append("* ").Append(error).AppendLine();
+                    
+                    throw new ValidationException(details.ToString());
                 }
-
-                context.Result = new BadRequestObjectResult(errors);
-                return;
             }
 
             await next();

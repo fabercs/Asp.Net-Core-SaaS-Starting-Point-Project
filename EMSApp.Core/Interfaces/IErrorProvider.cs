@@ -1,4 +1,5 @@
 ﻿using EMSApp.Core.DTO;
+using EMSApp.Shared;
 
 namespace EMSApp.Core.Interfaces
 {
@@ -8,5 +9,6 @@ namespace EMSApp.Core.Interfaces
     public interface IErrorProvider
     {
         Error GetError(string key);
+        string GetErrorMessage(string key);
     }
 }

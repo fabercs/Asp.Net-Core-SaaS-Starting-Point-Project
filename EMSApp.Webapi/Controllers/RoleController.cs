@@ -1,6 +1,6 @@
-﻿using EMSApp.Core.DTO;
-using EMSApp.Core.DTO.Requests;
+﻿using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.Services;
+using EMSApp.Shared;
 using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,10 +29,6 @@ namespace EMSApp.Webapi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRole(RoleCreateRequest request)
         {
-            if(string.IsNullOrWhiteSpace(request.RoleName))
-            {
-                return BadRequest(new Error { Description = $"{nameof(request.RoleName)} can not be empty" });
-            }
             await _roleService.CreateRole(request.RoleName);
             return Ok();
         }
@@ -40,10 +36,6 @@ namespace EMSApp.Webapi.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteRole(RoleDeleteRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.RoleName))
-            {
-                return BadRequest(new Error { Description = $"{nameof(request.RoleName)} can not be empty" });
-            }
             await _roleService.DeleteRole(request.RoleName);
             return Ok();
         }

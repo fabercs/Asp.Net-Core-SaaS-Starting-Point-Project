@@ -1,6 +1,6 @@
 ﻿using EMSApp.Core;
-using EMSApp.Core.DTO;
 using EMSApp.Core.Interfaces;
+using EMSApp.Shared;
 
 namespace EMSApp.Infrastructure.Providers
 {
@@ -13,6 +13,8 @@ namespace EMSApp.Infrastructure.Providers
             _L = localizationService;
         }
         public Error GetError(string key) => new(key, _L.GetLocalizedValue(Constants.Errors[key]));
+
+        public string GetErrorMessage(string key) => _L.GetLocalizedValue(Constants.Errors[key]);
         
     }
 }

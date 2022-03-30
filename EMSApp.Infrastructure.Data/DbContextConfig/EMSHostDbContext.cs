@@ -1,16 +1,22 @@
 ﻿using EMSApp.Core.Entities;
 using EMSApp.Infrastructure.Data.Helper;
+using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System;
+using System.Reflection;
 using Action = EMSApp.Core.Entities.Action;
+using Module = EMSApp.Core.Entities.Module;
 
 namespace EMSApp.Infrastructure.Data.DbContextConfig
 {
-    public class EMSHostDbContext : IdentityDbContext<ApplicationUser, 
-        ApplicationRole, 
+    public class EMSHostDbContext : IdentityDbContext<ApplicationUser,
+        ApplicationRole,
         Guid>
     {
+        private static MethodInfo ConfigureGlobalFiltersMethodInfo;
+
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<Licence> Licences { get; set; }
         public DbSet<TenantContact> TenantContacts { get; set; }
@@ -23,12 +29,15 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
         public DbSet<Page> Pages { get; set; }
         public DbSet<Action> Actions { get; set; }
         public DbSet<ApplicationRoleAction> ApplicationRoleActions { get; set; }
-        public EMSHostDbContext(DbContextOptions<EMSHostDbContext> options): base(options)
+        public EMSHostDbContext(DbContextOptions<EMSHostDbContext> options) : base(options)
         {
+            ConfigureGlobalFiltersMethodInfo = typeof(EMSAppDbContext)
+              .GetMethod(nameof(ConfigureGlobalFilters), BindingFlags.Instance | BindingFlags.NonPublic);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<ApplicationRole>()
                 .HasIndex("NormalizedName")
                 .HasDatabaseName("RoleNameIndex")
@@ -59,6 +68,11 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
                 .HasForeignKey(x => x.ModuleId);
 
             modelBuilder.SeedDatabase();
+        }
+
+        protected static void ConfigureGlobalFilters<TEntity>(ModelBuilder modelBuilder, IMutableEntityType entityType)
+            where TEntity : IEntity
+        {
         }
     }
 }

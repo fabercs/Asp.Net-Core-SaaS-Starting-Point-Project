@@ -1,4 +1,4 @@
-﻿using EMSApp.Core.Interfaces;
+﻿using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -14,8 +14,6 @@ namespace EMSApp.Core.Entities
         public Guid? CreatedBy { get; set; }
         public Guid? ModifiedBy { get; set; }
         public string Fullname { get; set; }
-        [Timestamp]
-        public byte[] Version { get; set; }
         object IEntity.Id { get => Id; set { } }
         public Guid TenantId { get; set; }
         

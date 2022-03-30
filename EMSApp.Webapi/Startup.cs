@@ -1,11 +1,13 @@
-using AutoMapper;
 using EMSApp.Core.DependencyInjection;
 using EMSApp.Infrastructure.Data.DependencyInjection;
 using EMSApp.Infrastructure.DependencyInjection;
 using EMSApp.Webapi.DependencyInjection;
 using EMSApp.Webapi.Extensions;
+using EMSApp.Webapi.Filters;
+using EMSApp.Webapi.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,9 +29,10 @@ namespace EMSApp.Webapi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers(config => {
-                //config.Filters.Add<TenantRequired>();
-                //config.Filters.Add<Validate>();
+                config.Filters.Add(new Validate());
             });
+            services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
+
             services.AddHttpContextAccessor();
             services.AddMemoryCache();
             services.AddAutoMapper(typeof(Startup));
@@ -63,12 +66,12 @@ namespace EMSApp.Webapi
 
             app.UseEnsureMigrations(); //TODO: refactor for development env.
 
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                
             });
-            
         }
     }
 }

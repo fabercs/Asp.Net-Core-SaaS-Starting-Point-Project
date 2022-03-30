@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using EMSApp.Shared;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EMSApp.Core.Entities

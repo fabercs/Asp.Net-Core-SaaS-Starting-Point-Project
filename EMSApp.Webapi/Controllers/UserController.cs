@@ -39,7 +39,6 @@ namespace EMSApp.Webapi.Controllers
         }
 
         [HttpPost]
-        [Validate]
         public async Task<IActionResult> Create(AppUserCreateRequest request)
         {
             if (request.Password != request.PasswordAgain)

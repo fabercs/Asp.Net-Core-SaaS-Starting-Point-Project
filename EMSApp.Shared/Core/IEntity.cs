@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EMSApp.Core.Interfaces
+namespace EMSApp.Shared
 {
     public interface IEntity
     {
@@ -9,7 +9,6 @@ namespace EMSApp.Core.Interfaces
         DateTime? ModifedOn { get; set; }
         Guid? CreatedBy { get; set; }
         Guid? ModifiedBy { get; set; }
-        byte[] Version { get; set; }
     }
 
     public interface IEntity<T> : IEntity

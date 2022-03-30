@@ -1,6 +1,4 @@
-﻿using EMSApp.Core.DTO;
-using EMSApp.Core.DTO.Responses;
-using EMSApp.Core.Entities;
+﻿using EMSApp.Core.Entities;
 using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +37,7 @@ namespace EMSApp.Core.Services
             {
                 foreach (var error in result.Errors)
                 {
-                    userManagerErrors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
                 }
                 return Response.Fail<bool>(userManagerErrors);
             }
@@ -55,7 +53,7 @@ namespace EMSApp.Core.Services
             {
                 foreach (var error in result.Errors)
                 {
-                    userManagerErrors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
                 }
                 return Response.Fail<bool>(userManagerErrors);
             }
@@ -71,7 +69,7 @@ namespace EMSApp.Core.Services
             {
                 foreach (var error in result.Errors)
                 {
-                    userManagerErrors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
                 }
                 return Response.Fail<bool>(userManagerErrors);
             }
@@ -80,7 +78,7 @@ namespace EMSApp.Core.Services
 
         public async Task<Response<bool>> Delete(Guid userId)
         {
-            
+
             var user = await _userManager.FindByIdAsync(userId.ToString());
             var result = await _userManager.DeleteAsync(user);
             var userManagerErrors = new List<Error>();
@@ -89,7 +87,7 @@ namespace EMSApp.Core.Services
             {
                 foreach (var error in result.Errors)
                 {
-                    userManagerErrors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
                 }
                 return Response.Fail<bool>(userManagerErrors);
             }
@@ -117,7 +115,7 @@ namespace EMSApp.Core.Services
             {
                 foreach (var error in result.Errors)
                 {
-                    userManagerErrors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
                 }
                 return Response.Fail<bool>(userManagerErrors);
             }
@@ -133,7 +131,7 @@ namespace EMSApp.Core.Services
             {
                 foreach (var error in result.Errors)
                 {
-                    userManagerErrors.Add(new Error { Description = error.Description });
+                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
                 }
                 return Response.Fail<bool>(userManagerErrors);
             }

@@ -2,8 +2,8 @@
 using EMSApp.Core.Interfaces;
 using EMSApp.Shared;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EMSApp.Webapi.Controllers
 {

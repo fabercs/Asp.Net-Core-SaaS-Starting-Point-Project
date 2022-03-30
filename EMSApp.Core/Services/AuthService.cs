@@ -1,4 +1,5 @@
-﻿using EMSApp.Core.DTO;
+﻿using Ardalis.GuardClauses;
+using EMSApp.Core.DTO;
 using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Entities;
@@ -21,14 +22,15 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Action = EMSApp.Core.Entities.Action;
 
+
 namespace EMSApp.Core.Services
 {
     public interface IAuthService
     {
-        Task<Response<AuthResponse>> Authenticate(LoginRequest loginRequest);
-        Task<Response<RegisterResponse>> Register(RegisterRequest resgisterRequest);
-        Task<Response<bool>> Verify(Guid tcid, string token);
-        Task<Response<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest);
+        Task<ApiResponse<LoginResponse>> Authenticate(LoginRequest loginRequest);
+        Task<ApiResponse<RegisterResponse>> Register(RegisterRequest resgisterRequest);
+        Task<ApiResponse<bool>> Verify(Guid tcid, string token);
+        Task<ApiResponse<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest);
     }
     public class AuthService : BaseService, IAuthService
     {
@@ -67,180 +69,165 @@ namespace EMSApp.Core.Services
             _tokenValidationParameters = tokenValidationParameters;
             _hostRepository = hostRepository;
             _tenantService = tenantService;
-            
+
         }
-        public async Task<Response<RegisterResponse>> Register(RegisterRequest registerRequest)
+        public async Task<ApiResponse<RegisterResponse>> Register(RegisterRequest registerRequest)
         {
-            try
+            var existingTenant = await _tenantService.GetTenantByHostname(registerRequest.Appname);
+            if (existingTenant != null)
             {
-                var existingTenant = await _tenantService.GetTenantByHostname(registerRequest.Appname);
-                if (existingTenant != null)
-                {
-                    return Response.Fail<RegisterResponse>(new List<Error> { _EP.GetError("register_tenant_exist") });
-                }
-                if (registerRequest.Password != registerRequest.PasswordAgain)
-                {
-                    return Response.Fail<RegisterResponse>(new List<Error> { _EP.GetError("register_password_mismatch") });
-                }
-
-                var existingUser = _hostRepository.Get<Tenant>(t => t.Responsibles.Any(r => r.Email == registerRequest.Email)
-                        , includeProperties: "Responsibles").FirstOrDefault();
-
-                if (existingUser != null)
-                {
-                    return Response.Fail<RegisterResponse>(new List<Error> { _EP.GetError("register_email_in_use") });
-                }
-
-                Tenant tenant = await CreatePoteantialTenant(registerRequest);
-                await ComposeEmailVerificationEmail(tenant);
-
-                return Response.Ok(new RegisterResponse());
+                return ApiResponse<RegisterResponse>.Error();
+                //ErrorProvider.GetError("no_tenant")
             }
-            catch (Exception ex)
+            if (registerRequest.Password != registerRequest.PasswordAgain)
             {
-                Logger.LogError(ex.Message, ex);
-                return Response.Fail<RegisterResponse>(new List<Error> { _EP.GetError("server_error") });
+                return ApiResponse<RegisterResponse>.Error();
+                //ErrorProvider.GetError("register_password_mismatch")
+            }
+
+            var existingUser = _hostRepository.Get<Tenant>(t => t.Responsibles.Any(r => r.Email == registerRequest.Email)
+                    , includeProperties: "Responsibles").FirstOrDefault();
+
+            if (existingUser != null)
+            {
+                return ApiResponse<RegisterResponse>.Error();
+                //ErrorProvider.GetError("register_email_in_use")
+            }
+
+            Tenant tenant = await CreatePoteantialTenant(registerRequest);
+            await ComposeEmailVerificationEmail(tenant);
+
+            return ApiResponse<RegisterResponse>.Success();
+        }
+        public async Task<ApiResponse<bool>> Verify(Guid tcid, string token)
+        {
+
+            Guard.Against.NullOrWhiteSpace(token, nameof(token));
+            Guard.Against.NullOrEmpty(tcid, nameof(tcid));
+
+            var tenantContact = await _hostRepository.GetFirstAsync<TenantContact>(tc => tc.Id == tcid,
+            includeProperties: "Tokens");
+
+            if (tenantContact == null)
+            {
+                return ApiResponse<bool>.Error();  //ErrorProvider.GetError("no_tenant_contact")
+            }
+
+            var validToken = tenantContact.Tokens.FirstOrDefault(t => t.Value == token);
+
+            if (validToken != null && !validToken.Valid)
+            {
+                return ApiResponse<bool>.Error(); //ErrorProvider.GetError("token_issued")
+            }
+
+            var validDurationPassed = validToken.CreatedOn.AddHours(24) < DateTime.Now;
+            if (validDurationPassed)
+            {
+                return ApiResponse<bool>.Error(); // ErrorProvider.GetError("token_expired")
+            }
+            validToken.Valid = false;
+            tenantContact.EmailConfirmed = true;
+            _hostRepository.Update(tenantContact);
+            await _hostRepository.SaveAsync();
+
+            await CreateTenantResources(tenantContact.Email, tenantContact.PasswordHash);
+
+            return ApiResponse<bool>.Success();
+        }
+        public async Task<ApiResponse<LoginResponse>> Authenticate(LoginRequest loginRequest)
+        {
+            var user = await _userManager.FindByEmailAsync(loginRequest.Username);
+            if (user != null)
+            {
+                var result = await _signInManager.PasswordSignInAsync(user, loginRequest.Password, true, false);
+                if (result.Succeeded)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    var permissions = await _roleService.GetRolesPermissions(roles.ToArray(), user.TenantId);
+                    var tenant = await _tenantService.GetTenantById(user.TenantId);
+                    user.Tenant = tenant;
+
+                    var authResponse = await _jwtTokenFactory.GenerateAuthResponseForUser(user);
+
+                    var userDto = Mapper.Map<UserDto>(user);
+                    userDto.PermittedPages = Mapper.Map<List<PageDto>>(permissions.Data.SelectMany(m => m.Pages));
+                    userDto.Tenant = Mapper.Map<TenantDto>(user.Tenant);
+
+                    var loginResponse = new LoginResponse
+                    {
+                        AccessToken = authResponse.AccessToken.Token,
+                        RefreshToken = authResponse.RefreshToken,
+                        User = userDto
+                    };
+
+                    return ApiResponse<LoginResponse>.Success(loginResponse);
+                }
+                else
+                {
+                    return ApiResponse<LoginResponse>.Error(); //ErrorProvider.GetError("auth_invalid_user_pass")
+                }
+            }
+            else
+            {
+                return ApiResponse<LoginResponse>.Error(ErrorProvider.GetErrorMessage("auth_user_not_found"));
             }
         }
-        public async Task<Response<bool>> Verify(Guid tcid, string token)
+        public async Task<ApiResponse<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest)
         {
-            try
+            var refreshToken = _hostRepository.GetFirst<RefreshToken>(r => r.Token == tokenRequest.RefreshToken);
+
+            ClaimsPrincipal principal = GetPrincipalFromToken(tokenRequest.AccessToken);
+
+            if (principal == null)
             {
-                var tenantContact = await _hostRepository.GetFirstAsync<TenantContact>(tc => tc.Id == tcid,
-                includeProperties: "Tokens");
+                return ApiResponse<AuthResponse>.Error(); //ErrorProvider.GetError("no_valid_token")
+            }
 
-                if (tenantContact == null)
-                {
-                    return Response.Fail<bool>(new List<Error> { _EP.GetError("no_tenant_contact") });
-                }
+            var expiryDate = long.Parse(principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
+            var expiryDateTimeLocal = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(expiryDate).ToLocalTime();
+            var jti = principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
 
-                var validToken = tenantContact.Tokens.FirstOrDefault(t => t.Value == token);
+            if (expiryDateTimeLocal > DateTime.Now)
+            {
+                return ApiResponse<AuthResponse>.Error(); //ErrorProvider.GetError("token_not_expired") });
+            }
 
-                if (validToken != null && !validToken.Valid)
-                {
-                    return Response.Fail<bool>(new List<Error> { _EP.GetError("token_issued") });
-                }
+            if (refreshToken == null)
+            {
+                return ApiResponse<AuthResponse>.Error(); //ErrorProvider.GetError("token_not_found") });
+            }
 
-                var validDurationPassed = validToken.CreatedOn.AddHours(24) < DateTime.Now;
-                if (validDurationPassed)
-                {
-                    return Response.Fail<bool>(new List<Error> { _EP.GetError("token_expired") });
-                }
-                validToken.Valid = false;
-                tenantContact.EmailConfirmed = true;
-                _hostRepository.Update(tenantContact);
+            if (refreshToken.Invalidated)
+            {
+                return ApiResponse<AuthResponse>.Error(); //ErrorProvider.GetError("no_valid_token") });
+            }
+
+            if (refreshToken.ExpiresOn < DateTime.Now)
+            {
+                refreshToken.Invalidated = true;
+                _hostRepository.Update(refreshToken);
+                await _hostRepository.SaveAsync();
+                return ApiResponse<AuthResponse>.Error(); //ErrorProvider.GetError("token_expired") });
+            }
+
+            if (refreshToken.JwtId != jti)
+            {
+                return ApiResponse<AuthResponse>.Error(); //ErrorProvider.GetError("token_mismatch") });
+            }
+
+            var user = await _userManager.FindByIdAsync(refreshToken.ApplicationUserId.ToString());
+            if (user != null)
+            {
+                var tokens = await _jwtTokenFactory.GenerateAuthResponseForUser(user);
+                refreshToken.Invalidated = true;
+                _hostRepository.Update(refreshToken);
                 await _hostRepository.SaveAsync();
 
-                await CreateTenantResources(tenantContact.Email, tenantContact.PasswordHash);
-
-                return Response.Ok(true);
+                return ApiResponse<AuthResponse>.Success(tokens);
             }
-            catch (Exception ex)
+            else
             {
-                Logger.LogError(ex.Message, ex);
-                return Response.Fail<bool>(new List<Error> { _EP.GetError("server_error") });
-            }
-        }
-        public async Task<Response<AuthResponse>> Authenticate(LoginRequest loginRequest)
-        {
-            try
-            {
-                var user = await _userManager.FindByEmailAsync(loginRequest.Username);
-                if (user != null)
-                {
-                    var result = await _signInManager.PasswordSignInAsync(user, loginRequest.Password, true, false);
-                    if (result.Succeeded)
-                    {
-                        var roles = await _userManager.GetRolesAsync(user);
-                        var permissions = await _roleService.GetRolesPermissions(roles.ToArray(), user.TenantId);
-                        var tenant = await _tenantService.GetTenantById(user.TenantId);
-                        user.Tenant = tenant;
-                        
-                        var authResponse = await _jwtTokenFactory.GenerateAuthResponseForUser(user);
-                        authResponse.User = user;
-                        authResponse.Modules = permissions.Data;
-                        return Response.Ok(authResponse);
-                    }
-                    else
-                    {
-                        return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("auth_invalid_user_pass") });
-                    }
-                }
-                else
-                {
-                    return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("auth_user_not_found") });
-                }
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError(ex.Message, ex);
-                return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("server_error") });
-            }
-        }
-        public async Task<Response<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest)
-        {
-            try
-            {
-                var refreshToken = _hostRepository.GetFirst<RefreshToken>(r => r.Token == tokenRequest.RefreshToken);
-
-                ClaimsPrincipal principal = GetPrincipalFromToken(tokenRequest.AccessToken);
-
-                if (principal == null)
-                {
-                    return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("no_valid_token") });
-                }
-
-                var expiryDate = long.Parse(principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
-                var expiryDateTimeLocal = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(expiryDate).ToLocalTime();
-                var jti = principal.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
-
-                if (expiryDateTimeLocal > DateTime.Now)
-                {
-                    return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("token_not_expired") });
-                }
-
-                if (refreshToken == null)
-                {
-                    return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("token_not_found") });
-                }
-
-                if (refreshToken.Invalidated)
-                {
-                    return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("no_valid_token") });
-                }
-
-                if (refreshToken.ExpiresOn < DateTime.Now)
-                {
-                    refreshToken.Invalidated = true;
-                    _hostRepository.Update(refreshToken);
-                    await _hostRepository.SaveAsync();
-                    return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("token_expired") });
-                }
-
-                if (refreshToken.JwtId != jti)
-                {
-                    return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("token_mismatch") });
-                }
-
-                var user = await _userManager.FindByIdAsync(refreshToken.ApplicationUserId.ToString());
-                if (user != null)
-                {
-                    var tokens = await _jwtTokenFactory.GenerateAuthResponseForUser(user);
-                    refreshToken.Invalidated = true;
-                    _hostRepository.Update(refreshToken);
-                    await _hostRepository.SaveAsync();
-
-                    return Response.Ok(tokens);
-                }
-                else
-                {
-                    return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("auth_user_not_found") });
-                }
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError(ex.Message, ex);
-                return Response.Fail<AuthResponse>(new List<Error> { _EP.GetError("server_error") });
+                return ApiResponse<AuthResponse>.Error(); //ErrorProvider.GetError("auth_user_not_found") });
             }
         }
 
@@ -294,7 +281,7 @@ namespace EMSApp.Core.Services
                 includeProperties: "Tenant");
 
             var tenant = tenantContact.Tenant;
-            
+
             if (tenant.ResourcesCreated)
                 return;
 
@@ -330,7 +317,7 @@ namespace EMSApp.Core.Services
             };
 
             var userResult = await _userManager.CreateAsync(applicationUser, _encryptionService.Decrypt(tenantContact.PasswordHash));
-            
+
             if (userResult.Succeeded)
             {
                 await AddUserToRole(applicationUser, appAdminRole);
@@ -372,19 +359,11 @@ namespace EMSApp.Core.Services
         }
         private async Task AddUserToRole(ApplicationUser applicationUser, ApplicationRole role)
         {
-            try
-            {
-                //Workaround, TODO:implement own userrole class and own user/role store
-                var userId = new NpgsqlParameter("@userId", applicationUser.Id);
-                var roleId = new NpgsqlParameter("@roleId", role.Id);
-                var sqlCommand = "INSERT INTO public.\"AspNetUserRoles\"(\"UserId\", \"RoleId\") VALUES(@userId, @roleId)";
-                await _hostRepository.ExecuteSqlCommand(sqlCommand, userId, roleId);
-            }
-            catch
-            {
-                throw;
-            }
-
+            //Workaround, TODO:implement own userrole class and own user/role store
+            var userId = new NpgsqlParameter("@userId", applicationUser.Id);
+            var roleId = new NpgsqlParameter("@roleId", role.Id);
+            var sqlCommand = "INSERT INTO public.\"AspNetUserRoles\"(\"UserId\", \"RoleId\") VALUES(@userId, @roleId)";
+            await _hostRepository.ExecuteSqlCommand(sqlCommand, userId, roleId);
         }
         private async Task ReloadTenantsToCache()
         {
@@ -438,22 +417,15 @@ namespace EMSApp.Core.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            try
+            var tokenValidationParam = _tokenValidationParameters.Clone();
+            tokenValidationParam.ValidateLifetime = false;
+            var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParam, out var validatedToken);
+            if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
             {
-                var tokenValidationParam = _tokenValidationParameters.Clone();
-                tokenValidationParam.ValidateLifetime = false;
-                var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParam, out var validatedToken);
-                if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
-                {
-                    return null;
-                }
-                return principal;
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError(ex.Message, ex);
                 return null;
             }
+            return principal;
+
         }
         private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
         {

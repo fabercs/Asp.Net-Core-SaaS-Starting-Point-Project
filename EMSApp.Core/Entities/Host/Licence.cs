@@ -1,4 +1,5 @@
 ﻿using EMSApp.Core.Enums;
+using EMSApp.Shared;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 

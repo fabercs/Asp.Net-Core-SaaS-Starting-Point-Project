@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace EMSApp.Core.DTO.Responses
+namespace EMSApp.Shared
 {
     public class Response
     {
@@ -14,6 +13,7 @@ namespace EMSApp.Core.DTO.Responses
         {
             if (isSuccess && errors?.Count > 0)
                 throw new InvalidOperationException();
+
             if (!isSuccess && errors?.Count == 0)
                 throw new InvalidOperationException();
 
@@ -22,22 +22,11 @@ namespace EMSApp.Core.DTO.Responses
             Message = message;
         }
 
-        public static Response Ok()
-        {
-            return new Response(true, default, null);
-        }
-        public static Response Fail(List<Error> errors, string message=null)
-        {
-            return new Response(false, errors, message);
-        }
-        public static Response<T> Ok<T>(T data)
-        {
-            return new Response<T>(data, true, default, null);
-        }
-        public static Response<T> Fail<T>(List<Error> errors, string message=null)
-        {
-            return new Response<T>(default, false, errors, message);
-        }
+        public static Response Ok() => new(true, default, null);
+        public static Response Fail(List<Error> errors, string message = null) => new(false, errors, message);
+        public static Response<T> Ok<T>(T data) => new(data, true, default, null);
+        public static Response<T> Fail<T>(List<Error> errors, string message = null) =>
+            new(default, false, errors, message);
     }
 
     public class Response<T> : Response
@@ -56,13 +45,9 @@ namespace EMSApp.Core.DTO.Responses
         }
 
         protected internal Response(T data, bool isSuccess, List<Error> errors, string message)
-            :base(isSuccess, errors, message)
+            : base(isSuccess, errors, message)
         {
             _data = data;
         }
     }
-
-
-
-    
 }

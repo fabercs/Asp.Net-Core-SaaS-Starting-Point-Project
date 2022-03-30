@@ -1,13 +1,10 @@
-﻿using EMSApp.Core.DTO;
-using EMSApp.Core.DTO.Responses;
-using EMSApp.Core.Entities;
+﻿using EMSApp.Core.Entities;
 using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EMSApp.Core.Services
@@ -19,7 +16,7 @@ namespace EMSApp.Core.Services
         Task<Response<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId);
         Task<Response<bool>> CreateRole(string roleName);
         Task<Response<bool>> DeleteRole(string roleName);
-        
+
     }
     public class RoleService : BaseService, IRoleService
     {
@@ -44,7 +41,7 @@ namespace EMSApp.Core.Services
             {
                 foreach (var error in result.Errors)
                 {
-                    roleErrors.Add(new Error { Description = error.Description });
+                    roleErrors.Add(new Error(error.Code.ToLower(), error.Description));
                 }
                 return Response.Fail<bool>(roleErrors);
             }
@@ -60,17 +57,15 @@ namespace EMSApp.Core.Services
             {
                 foreach (var error in result.Errors)
                 {
-                    roleErrors.Add(new Error { Description = error.Description });
+                    roleErrors.Add(new Error(error.Code.ToLower(), error.Description));
                 }
                 return Response.Fail<bool>(roleErrors);
             }
             return Response.Ok(true);
         }
-
         public async Task<IEnumerable<ApplicationRole>> GetAll()
          => await _roleManager.Roles.Where(r => r.TenantId == TenantContext.Tenant.Id)
             .ToListAsync();
-
         public async Task<Response<List<Module>>> GetRolePermissions(string id, Guid tenantId)
         {
             var modules = await AppRepository.GetAsync<Module>(
@@ -80,7 +75,6 @@ namespace EMSApp.Core.Services
 
             return Response.Ok(modules.ToList());
         }
-
         public async Task<Response<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId)
         {
             var modules = await HostRepository.GetAsync<Module>(

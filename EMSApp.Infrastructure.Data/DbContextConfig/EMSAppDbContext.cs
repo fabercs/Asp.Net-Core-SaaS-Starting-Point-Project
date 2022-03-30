@@ -1,6 +1,7 @@
 ﻿using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
 using EMSApp.Infrastructure.Data.Helper;
+using EMSApp.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
@@ -45,10 +46,13 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
             {
                 foreach (var entityType in modelBuilder.Model.GetEntityTypes())
                 {
-
-                    ConfigureGlobalFiltersMethodInfo
+                    if (typeof(IEntity).IsAssignableFrom(entityType.GetType()))
+                    {
+                        ConfigureGlobalFiltersMethodInfo
                         .MakeGenericMethod(entityType.ClrType)
                         .Invoke(this, new object[] { modelBuilder, entityType });
+                    }
+                    
                 }
             }
 
@@ -61,17 +65,17 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
 
         #region Settings
         protected void ConfigureGlobalFilters<TEntity>(ModelBuilder modelBuilder, IMutableEntityType entityType)
-            where TEntity : class
+            where TEntity : IEntity
         {
-            if (entityType.BaseType != null || !ShouldFilterEntity<TEntity>(entityType))
+            if (entityType.BaseType != null || !ShouldFilterEntity<IEntity>(entityType))
                 return;
 
-            var filterExpression = CreateFilterExpression<TEntity>();
+            var filterExpression = CreateFilterExpression<IEntity>();
             if (filterExpression == null) return;
             if (entityType.IsKeyless)
-                modelBuilder.Entity<TEntity>().HasNoKey().HasQueryFilter(filterExpression);
+                modelBuilder.Entity<BaseEntity>().HasNoKey().HasQueryFilter(filterExpression);
             else
-                modelBuilder.Entity<TEntity>().HasQueryFilter(filterExpression);
+                modelBuilder.Entity<BaseEntity>().HasQueryFilter(filterExpression);
         }
 
         protected virtual bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType) where TEntity : class

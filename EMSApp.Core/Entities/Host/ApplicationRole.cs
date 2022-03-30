@@ -1,7 +1,6 @@
-﻿using EMSApp.Core.Interfaces;
+﻿using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,7 +16,6 @@ namespace EMSApp.Core.Entities
         public DateTime? ModifedOn { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? ModifiedBy { get; set; }
-        public byte[] Version { get; set; }
         object IEntity.Id { get; set; }
         public ICollection<ApplicationRoleAction> AppRoleActions { get; set; }
     }

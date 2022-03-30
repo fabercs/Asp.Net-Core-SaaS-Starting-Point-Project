@@ -3,6 +3,7 @@ using System;
 using EMSApp.Infrastructure.Data.DbContextConfig;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EMSApp.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(EMSHostDbContext))]
-    partial class EMSHostDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220329214430_version-column")]
+    partial class versioncolumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,14 +63,14 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 7,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6365),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2022),
                             Name = "view",
                             PageId = 1
                         },
                         new
                         {
                             Id = 1,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6367),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2025),
                             Name = "create",
                             PageId = 2,
                             Url = "create"
@@ -76,7 +78,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6369),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2026),
                             Name = "edit",
                             PageId = 2,
                             Url = "edit"
@@ -84,14 +86,14 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6372),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2028),
                             Name = "delete",
                             PageId = 2
                         },
                         new
                         {
                             Id = 4,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6373),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2030),
                             Name = "create",
                             PageId = 3,
                             Url = "create"
@@ -99,7 +101,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6375),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2032),
                             Name = "edit",
                             PageId = 3,
                             Url = "edit"
@@ -107,7 +109,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6377),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2034),
                             Name = "delete",
                             PageId = 3
                         });
@@ -145,6 +147,9 @@ namespace EMSApp.Infrastructure.Data.Migrations
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Version")
+                        .HasColumnType("bytea");
 
                     b.HasKey("Id");
 
@@ -254,6 +259,11 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -352,19 +362,19 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6193),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(1846),
                             Name = "Dashboard"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6196),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(1848),
                             Name = "Fair"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6198),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(1851),
                             Name = "Firm"
                         });
                 });
@@ -421,7 +431,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         {
                             Id = 1,
                             Component = "dashboard",
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6342),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(1999),
                             FileUrl = "./views/dashboard/analytics/AnalyticsDashboard",
                             Icon = "Home",
                             ModuleId = 1,
@@ -432,7 +442,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         {
                             Id = 2,
                             Component = "fair",
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6346),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2002),
                             FileUrl = "./views/fair/Fairs",
                             Icon = "Layout",
                             ModuleId = 2,
@@ -443,7 +453,7 @@ namespace EMSApp.Infrastructure.Data.Migrations
                         {
                             Id = 3,
                             Component = "firm",
-                            CreatedOn = new DateTime(2022, 3, 30, 22, 58, 25, 777, DateTimeKind.Local).AddTicks(6348),
+                            CreatedOn = new DateTime(2022, 3, 30, 0, 44, 29, 963, DateTimeKind.Local).AddTicks(2004),
                             FileUrl = "./views/fair/Firms",
                             Icon = "Briefcase",
                             ModuleId = 3,
