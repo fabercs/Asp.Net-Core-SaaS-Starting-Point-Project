@@ -71,7 +71,7 @@ namespace EMSApp.Infrastructure.Data.Repository
             int? take = null)
             where TEntity : class, IEntity
         {
-            return GetQueryable<TEntity>(null, orderBy, includeProperties, skip, take).ToList();
+            return GetQueryable(null, orderBy, includeProperties, skip, take).ToList();
         }
 
         public virtual async Task<IEnumerable<TEntity>> GetAllAsync<TEntity>(
@@ -81,7 +81,7 @@ namespace EMSApp.Infrastructure.Data.Repository
             int? take = null)
             where TEntity : class, IEntity
         {
-            return await GetQueryable<TEntity>(null, orderBy, includeProperties, skip, take).ToListAsync();
+            return await GetQueryable(null, orderBy, includeProperties, skip, take).ToListAsync();
         }
 
         public virtual IEnumerable<TEntity> Get<TEntity>(
@@ -92,7 +92,7 @@ namespace EMSApp.Infrastructure.Data.Repository
             int? take = null)
             where TEntity : class, IEntity
         {
-            return GetQueryable<TEntity>(filter, orderBy, includeProperties, skip, take).ToList();
+            return GetQueryable(filter, orderBy, includeProperties, skip, take).ToList();
         }
 
         public virtual async Task<IEnumerable<TEntity>> GetAsync<TEntity>(
@@ -103,7 +103,7 @@ namespace EMSApp.Infrastructure.Data.Repository
             int? take = null)
             where TEntity : class, IEntity
         {
-            return await GetQueryable<TEntity>(filter, orderBy, includeProperties, skip, take).ToListAsync();
+            return await GetQueryable(filter, orderBy, includeProperties, skip, take).ToListAsync();
         }
 
         public virtual TEntity GetOne<TEntity>(
@@ -173,7 +173,13 @@ namespace EMSApp.Infrastructure.Data.Repository
         public virtual Task<bool> GetExistsAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
             where TEntity : class, IEntity
         {
-            return GetQueryable<TEntity>(filter).AnyAsync();
+            return GetQueryable(filter).AnyAsync();
+        }
+
+        public virtual async Task<IEnumerable<TEntity>> GetBySpec<TEntity>(ISpecification<TEntity> spec)
+            where TEntity : class, IEntity
+        {
+            return await GetQueryable(spec.ToExpression()).ToListAsync();
         }
     }
 
@@ -219,29 +225,14 @@ namespace EMSApp.Infrastructure.Data.Repository
             dbSet.Remove(entity);
         }
 
-        //TODO: handle exception
-        public virtual void Save()
+        public virtual int Save()
         {
-            try
-            {
-                context.SaveChanges();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return context.SaveChanges();
         }
 
-        public virtual Task SaveAsync()
+        public virtual async Task<int> SaveAsync()
         {
-            try
-            {
-                return context.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return await context.SaveChangesAsync();
         }
 
         public async Task<bool> ExecuteSqlCommand(string sql)

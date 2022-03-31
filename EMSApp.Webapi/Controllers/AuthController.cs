@@ -1,14 +1,10 @@
-﻿ using EMSApp.Core.DTO;
-using EMSApp.Core.DTO.Requests;
+﻿using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.DTO.Responses;
 using EMSApp.Core.Services;
 using EMSApp.Shared;
-using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
@@ -32,17 +28,10 @@ namespace EMSApp.Webapi.Controllers
 
         [AllowAnonymous]
         [HttpGet("verify")]
-        public async Task<IActionResult> Verify([FromQuery] Guid tcid, [FromQuery]string token)
+        public async Task<ActionResult<bool>> Verify([FromQuery] Guid tcid, [FromQuery]string token)
         {
             var response = await _authService.Verify(tcid, token);
-            if (response.IsSuccess)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(response.Errors);
-            }
+            return response.ToActionResult(this);
         }
 
         [AllowAnonymous]
@@ -54,14 +43,10 @@ namespace EMSApp.Webapi.Controllers
         }
 
         [HttpPost("refreshtoken")]
-        public async Task<IActionResult> RefreshToken([FromBody]ExchangeTokenRequest tokenRequest)
+        public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody]ExchangeTokenRequest tokenRequest)
         {
             var response = await _authService.ExchangeRefreshToken(tokenRequest);
-            if (!response.IsSuccess)
-            {
-                return BadRequest(response.Errors);
-            };
-            return Ok(response.Value);
+            return response.ToActionResult(this);
         }
     }
 }

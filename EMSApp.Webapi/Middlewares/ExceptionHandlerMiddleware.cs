@@ -27,25 +27,15 @@ namespace EMSApp.Webapi.Middlewares
             }
             catch(Exception exception)
             {
-                logger.LogError(message: exception.Message, exception);
-                var response = context.Response;
-                switch (exception)
-                {
-                    case AppException appEx:
-                    case ValidationException valEx:
-                        // custom application error
-                        response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        break;
-                    case KeyNotFoundException e:
-                        // not found error
-                        response.StatusCode = (int)HttpStatusCode.NotFound;
-                        break;
-                    default:
-                        // unhandled error
-                        response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        break;
-                }
+                logger.LogError(exception.Message, exception);
 
+                var response = context.Response;
+                response.StatusCode = exception switch
+                {
+                    AppException or ValidationException => (int)HttpStatusCode.BadRequest,
+                    KeyNotFoundException => (int)HttpStatusCode.NotFound,
+                    _ => (int)HttpStatusCode.InternalServerError,
+                };
                 var result = JsonSerializer.Serialize(new { message = exception?.Message });
                 await response.WriteAsync(result);
             }

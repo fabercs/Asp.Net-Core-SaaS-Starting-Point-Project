@@ -78,6 +78,9 @@ namespace EMSApp.Core.Interfaces
 
         Task<bool> GetExistsAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
             where TEntity : class, IEntity;
+
+        Task<IEnumerable<TEntity>> GetBySpec<TEntity>(ISpecification<TEntity> spec)
+            where TEntity : class, IEntity;
     }
 
     public interface IRepository : IReadOnlyRepository
@@ -98,9 +101,9 @@ namespace EMSApp.Core.Interfaces
 
         Task<bool> ExecuteSqlCommand(string sql, params object[] parameters);
 
-        void Save();
+        int Save();
 
-        Task SaveAsync();
+        Task<int> SaveAsync();
     }
 
     public interface IAppRepository : IRepository { }

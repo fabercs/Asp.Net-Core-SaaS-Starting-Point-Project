@@ -1,4 +1,5 @@
-﻿using EMSApp.Core.Entities;
+﻿using Ardalis.GuardClauses;
+using EMSApp.Core.Entities;
 using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace EMSApp.Core.Services
 {
     public interface IRoleService
     {
-        Task<IEnumerable<ApplicationRole>> GetAll();
+        Task<List<ApplicationRole>> GetAll();
         Task<Response<List<Module>>> GetRolePermissions(string id, Guid tenantId);
         Task<Response<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId);
         Task<Response<bool>> CreateRole(string roleName);
@@ -29,6 +30,8 @@ namespace EMSApp.Core.Services
 
         public async Task<Response<bool>> CreateRole(string roleName)
         {
+            Guard.Against.NullOrWhiteSpace(roleName, nameof(roleName));
+
             var result = await _roleManager.CreateAsync(new ApplicationRole
             {
                 Name = roleName,
@@ -63,7 +66,7 @@ namespace EMSApp.Core.Services
             }
             return Response.Ok(true);
         }
-        public async Task<IEnumerable<ApplicationRole>> GetAll()
+        public async Task<List<ApplicationRole>> GetAll()
          => await _roleManager.Roles.Where(r => r.TenantId == TenantContext.Tenant.Id)
             .ToListAsync();
         public async Task<Response<List<Module>>> GetRolePermissions(string id, Guid tenantId)

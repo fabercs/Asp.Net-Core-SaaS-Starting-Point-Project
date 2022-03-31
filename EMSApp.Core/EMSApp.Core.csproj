@@ -19,8 +19,4 @@
     <ProjectReference Include="..\EMSApp.Shared\EMSApp.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Specifications\" />
-  </ItemGroup>
-
 </Project>
