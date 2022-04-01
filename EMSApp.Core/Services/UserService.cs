@@ -11,131 +11,109 @@ namespace EMSApp.Core.Services
 {
     public interface IUserService
     {
-        Task<Response<ApplicationUser>> GetUserById(Guid id);
-        Task<Response<List<ApplicationUser>>> GetAllUsersOfTenant(Guid tenantId);
-        Task<Response<bool>> Create(ApplicationUser user, string password);
-        Task<Response<bool>> Delete(ApplicationUser user);
-        Task<Response<bool>> Delete(Guid userId);
-        Task<Response<bool>> Update(ApplicationUser user);
-        Task<Response<bool>> AddToRole(ApplicationUser user, string role);
-        Task<Response<bool>> RemoveFromRole(ApplicationUser user, string role);
+        Task<ApiResponse<ApplicationUser>> GetUserById(Guid id);
+        Task<ApiResponse<List<ApplicationUser>>> GetAllUsersOfTenant(Guid tenantId);
+        Task<ApiResponse<bool>> Create(ApplicationUser user, string password);
+        Task<ApiResponse<bool>> Delete(ApplicationUser user);
+        Task<ApiResponse<bool>> Delete(Guid userId);
+        Task<ApiResponse<bool>> Update(ApplicationUser user);
+        Task<ApiResponse<bool>> AddToRole(ApplicationUser user, string role);
+        Task<ApiResponse<bool>> RemoveFromRole(ApplicationUser user, string role);
     }
     public class UserService : BaseService, IUserService
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserService(UserManager<ApplicationUser> userManager, ILazyServiceProvider serviceProvider) : base(serviceProvider)
+        public UserService(UserManager<ApplicationUser> userManager, ILazyServiceProvider serviceProvider) 
+            : base(serviceProvider)
         {
             _userManager = userManager;
         }
 
-        public async Task<Response<bool>> AddToRole(ApplicationUser user, string role)
+        public async Task<ApiResponse<bool>> AddToRole(ApplicationUser user, string role)
         {
             var result = await _userManager.AddToRoleAsync(user, role);
-            var userManagerErrors = new List<Error>();
+            var errors = Array.Empty<string>();
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
-                }
-                return Response.Fail<bool>(userManagerErrors);
+                errors = result.Errors.Select(e => e.Description).ToArray();
+                return ApiResponse<bool>.Error(errors);
             }
-            return Response.Ok(true);
+            return ApiResponse<bool>.Success();
         }
 
-        public async Task<Response<bool>> Create(ApplicationUser user, string password)
+        public async Task<ApiResponse<bool>> Create(ApplicationUser user, string password)
         {
             var result = await _userManager.CreateAsync(user, password);
-            var userManagerErrors = new List<Error>();
-
+            var errors = Array.Empty<string>();
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
-                }
-                return Response.Fail<bool>(userManagerErrors);
+                errors = result.Errors.Select(e => e.Description).ToArray();
+                return ApiResponse<bool>.Error(errors);
             }
-            return Response.Ok(true);
+            return ApiResponse<bool>.Success();
         }
 
-        public async Task<Response<bool>> Delete(ApplicationUser user)
+        public async Task<ApiResponse<bool>> Delete(ApplicationUser user)
         {
             var result = await _userManager.DeleteAsync(user);
-            var userManagerErrors = new List<Error>();
-
+            var errors = Array.Empty<string>();
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
-                }
-                return Response.Fail<bool>(userManagerErrors);
+                errors = result.Errors.Select(e => e.Description).ToArray();
+                return ApiResponse<bool>.Error(errors);
             }
-            return Response.Ok(true);
+            return ApiResponse<bool>.Success();
         }
 
-        public async Task<Response<bool>> Delete(Guid userId)
+        public async Task<ApiResponse<bool>> Delete(Guid userId)
         {
 
             var user = await _userManager.FindByIdAsync(userId.ToString());
             var result = await _userManager.DeleteAsync(user);
-            var userManagerErrors = new List<Error>();
-
+            var errors = Array.Empty<string>();
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
-                }
-                return Response.Fail<bool>(userManagerErrors);
+                errors = result.Errors.Select(e => e.Description).ToArray();
+                return ApiResponse<bool>.Error(errors);
             }
-            return Response.Ok(true);
+            return ApiResponse<bool>.Success();
         }
 
-        public async Task<Response<List<ApplicationUser>>> GetAllUsersOfTenant(Guid tenantId)
+        public async Task<ApiResponse<List<ApplicationUser>>> GetAllUsersOfTenant(Guid tenantId)
         {
             var users = await _userManager.Users.Where(u => u.TenantId == tenantId).ToListAsync();
-            return Response.Ok(users);
+            return ApiResponse<List<ApplicationUser>>.Success(users);
         }
 
-        public async Task<Response<ApplicationUser>> GetUserById(Guid id)
+        public async Task<ApiResponse<ApplicationUser>> GetUserById(Guid id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            return Response.Ok(user);
+            return ApiResponse<ApplicationUser>.Success(user);
         }
 
-        public async Task<Response<bool>> RemoveFromRole(ApplicationUser user, string role)
+        public async Task<ApiResponse<bool>> RemoveFromRole(ApplicationUser user, string role)
         {
             var result = await _userManager.RemoveFromRoleAsync(user, role);
-            var userManagerErrors = new List<Error>();
-
+            var errors = Array.Empty<string>();
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
-                }
-                return Response.Fail<bool>(userManagerErrors);
+                errors = result.Errors.Select(e => e.Description).ToArray();
+                return ApiResponse<bool>.Error(errors);
             }
-            return Response.Ok(true);
+            return ApiResponse<bool>.Success();
         }
 
-        public async Task<Response<bool>> Update(ApplicationUser user)
+        public async Task<ApiResponse<bool>> Update(ApplicationUser user)
         {
             var result = await _userManager.UpdateAsync(user);
-            var userManagerErrors = new List<Error>();
-
+            var errors = Array.Empty<string>();
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    userManagerErrors.Add(new Error(error.Code.ToLower(), error.Description));
-                }
-                return Response.Fail<bool>(userManagerErrors);
+                errors = result.Errors.Select(e => e.Description).ToArray();
+                return ApiResponse<bool>.Error(errors);
             }
-            return Response.Ok(true);
+            return ApiResponse<bool>.Success();
         }
     }
 }

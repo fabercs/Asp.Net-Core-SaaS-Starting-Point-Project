@@ -2,11 +2,12 @@
 using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
 using EMSApp.Core.Services;
+using EMSApp.Shared;
 using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
@@ -25,26 +26,22 @@ namespace EMSApp.Webapi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<List<ApplicationUser>>> GetAll()
         {
-            var users = await _userService.GetAllUsersOfTenant(TenantContext.Tenant.Id);
-            return Ok(users);
+            var response = await _userService.GetAllUsersOfTenant(TenantContext.Tenant.Id);
+            return response.ToActionResult(this);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<ActionResult<ApplicationUser>> GetById(Guid id)
         {
-            var user = await _userService.GetUserById(id);
-            return Ok(user);
+            var response = await _userService.GetUserById(id);
+            return response.ToActionResult(this);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(AppUserCreateRequest request)
+        public async Task<ActionResult<bool>> Create(AppUserCreateRequest request)
         {
-            if (request.Password != request.PasswordAgain)
-            {
-                return BadRequest(_EP.GetError("password_mismatch"));
-            }
             var applicationUser = new ApplicationUser
             {
                 Fullname = $"{request.Name.Trim()} {request.Surname.Trim()}",
@@ -56,28 +53,14 @@ namespace EMSApp.Webapi.Controllers
                 TenantId = TenantContext.Tenant.Id
             };
             var response = await _userService.Create(applicationUser, request.Password);
-            if (response.IsSuccess)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(response.Errors);
-            }
+            return response.ToActionResult(this);
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Delete(Guid userId)
+        public async Task<ActionResult<bool>> Delete(Guid userId)
         {
             var response = await _userService.Delete(userId);
-            if (response.IsSuccess)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(response.Errors);
-            }
+            return response.ToActionResult(this);
         }
     }
 }

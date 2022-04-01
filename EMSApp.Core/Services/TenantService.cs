@@ -15,7 +15,8 @@ namespace EMSApp.Core.Services
     {
         private readonly IHostRepository _hostRepository;
 
-        public TenantService(IHostRepository hostRepository, ILazyServiceProvider serviceProvider) : base(serviceProvider)
+        public TenantService(IHostRepository hostRepository, ILazyServiceProvider serviceProvider) 
+            : base(serviceProvider)
         {
             _hostRepository = hostRepository;
         }

@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using EMSApp.Core.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EMSApp.Core.DTO
 {
-    public class AppUserCreateRequest
+    public class AppUserCreateRequest : IValidatableObject
     {
         [Required]
         public string Name { get; set; }
@@ -15,5 +18,13 @@ namespace EMSApp.Core.DTO
         [Required]
         public string PasswordAgain { get; set; }
 
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var errorProvider = validationContext.GetService<IErrorProvider>();
+            if (Password != PasswordAgain)
+            {
+                yield return new ValidationResult(errorProvider.GetErrorMessage("password_mismatch"));
+            }
+        }
     }
 }

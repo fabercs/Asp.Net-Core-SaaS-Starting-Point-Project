@@ -1,9 +1,11 @@
 ﻿using EMSApp.Core.DTO.Requests;
+using EMSApp.Core.Entities;
 using EMSApp.Core.Services;
 using EMSApp.Shared;
 using EMSApp.Webapi.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
@@ -20,24 +22,24 @@ namespace EMSApp.Webapi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<List<ApplicationRole>>> GetAll()
         {
-            var roles = await _roleService.GetAll();
-            return Ok(roles);
+            var response = await _roleService.GetAll();
+            return response.ToActionResult(this);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRole(RoleCreateRequest request)
+        public async Task<ActionResult<bool>> CreateRole(RoleCreateRequest request)
         {
-            await _roleService.CreateRole(request.RoleName);
-            return Ok();
+            var response = await _roleService.CreateRole(request.RoleName);
+            return response.ToActionResult(this);
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteRole(RoleDeleteRequest request)
+        public async Task<ActionResult<bool>> DeleteRole(RoleDeleteRequest request)
         {
-            await _roleService.DeleteRole(request.RoleName);
-            return Ok();
+            var response = await _roleService.DeleteRole(request.RoleName);
+            return response.ToActionResult(this);
         }
     }
 }

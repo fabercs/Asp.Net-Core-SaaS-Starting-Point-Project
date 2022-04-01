@@ -76,8 +76,7 @@ namespace EMSApp.Core.Services
             var existingTenant = await _tenantService.GetTenantByHostname(registerRequest.Appname);
             if (existingTenant != null)
             {
-                return ApiResponse<RegisterResponse>.Error();
-                //ErrorProvider.GetError("no_tenant")
+                return ApiResponse<RegisterResponse>.Error(ErrorProvider.GetErrorMessage("no_tenant"));
             }
             if (registerRequest.Password != registerRequest.PasswordAgain)
             {
@@ -150,7 +149,7 @@ namespace EMSApp.Core.Services
                     var authResponse = await _jwtTokenFactory.GenerateAuthResponseForUser(user);
 
                     var userDto = Mapper.Map<UserDto>(user);
-                    userDto.PermittedPages = Mapper.Map<List<PageDto>>(permissions.Data.SelectMany(m => m.Pages));
+                    userDto.PermittedPages = Mapper.Map<List<PageDto>>(permissions.Value.SelectMany(m => m.Pages));
                     userDto.Tenant = Mapper.Map<TenantDto>(user.Tenant);
 
                     var loginResponse = new LoginResponse

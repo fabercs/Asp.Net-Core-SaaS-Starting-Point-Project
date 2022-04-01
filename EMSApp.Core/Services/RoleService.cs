@@ -12,11 +12,11 @@ namespace EMSApp.Core.Services
 {
     public interface IRoleService
     {
-        Task<List<ApplicationRole>> GetAll();
-        Task<Response<List<Module>>> GetRolePermissions(string id, Guid tenantId);
-        Task<Response<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId);
-        Task<Response<bool>> CreateRole(string roleName);
-        Task<Response<bool>> DeleteRole(string roleName);
+        Task<ApiResponse<List<ApplicationRole>>> GetAll();
+        Task<ApiResponse<List<Module>>> GetRolePermissions(string id, Guid tenantId);
+        Task<ApiResponse<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId);
+        Task<ApiResponse<bool>> CreateRole(string roleName);
+        Task<ApiResponse<bool>> DeleteRole(string roleName);
 
     }
     public class RoleService : BaseService, IRoleService
@@ -28,7 +28,7 @@ namespace EMSApp.Core.Services
             _roleManager = roleManager;
         }
 
-        public async Task<Response<bool>> CreateRole(string roleName)
+        public async Task<ApiResponse<bool>> CreateRole(string roleName)
         {
             Guard.Against.NullOrWhiteSpace(roleName, nameof(roleName));
 
@@ -39,53 +39,49 @@ namespace EMSApp.Core.Services
                 TenantId = TenantContext.Tenant.Id
             });
 
-            var roleErrors = new List<Error>();
+            var roleErrors = Array.Empty<string>();
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    roleErrors.Add(new Error(error.Code.ToLower(), error.Description));
-                }
-                return Response.Fail<bool>(roleErrors);
+                roleErrors = result.Errors.Select(e => e.Description).ToArray();
+                return ApiResponse<bool>.Error(roleErrors);
             }
-            return Response.Ok(true);
+            return ApiResponse<bool>.Success();
         }
-        public async Task<Response<bool>> DeleteRole(string roleName)
+        public async Task<ApiResponse<bool>> DeleteRole(string roleName)
         {
             var role = await _roleManager.FindByNameAsync(roleName);
             var result = await _roleManager.DeleteAsync(role);
 
-            var roleErrors = new List<Error>();
+            var roleErrors = Array.Empty<string>();
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    roleErrors.Add(new Error(error.Code.ToLower(), error.Description));
-                }
-                return Response.Fail<bool>(roleErrors);
+                roleErrors = result.Errors.Select(e => e.Description).ToArray();
+                return ApiResponse<bool>.Error(roleErrors);
             }
-            return Response.Ok(true);
+            return ApiResponse<bool>.Success();
         }
-        public async Task<List<ApplicationRole>> GetAll()
-         => await _roleManager.Roles.Where(r => r.TenantId == TenantContext.Tenant.Id)
-            .ToListAsync();
-        public async Task<Response<List<Module>>> GetRolePermissions(string id, Guid tenantId)
+        public async Task<ApiResponse<List<ApplicationRole>>> GetAll()
+        {
+            var roles = await _roleManager.Roles.Where(r => r.TenantId == TenantContext.Tenant.Id).ToListAsync();
+            return ApiResponse<List<ApplicationRole>>.Success(roles);
+        }
+        public async Task<ApiResponse<List<Module>>> GetRolePermissions(string id, Guid tenantId)
         {
             var modules = await AppRepository.GetAsync<Module>(
                 m => m.Pages.SelectMany(p => p.Actions).SelectMany(a => a.AppRoleActions)
                 .Any(ar => ar.ApplicationRole.Name == id && ar.ApplicationRole.TenantId == tenantId),
                 includeProperties: "Pages.Actions.AppRoleActions.ApplicationRole");
 
-            return Response.Ok(modules.ToList());
+            return ApiResponse<List<Module>>.Success(modules.ToList());
         }
-        public async Task<Response<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId)
+        public async Task<ApiResponse<List<Module>>> GetRolesPermissions(string[] id, Guid tenantId)
         {
             var modules = await HostRepository.GetAsync<Module>(
                 m => m.Pages.SelectMany(p => p.Actions).SelectMany(a => a.AppRoleActions)
                 .Any(ar => id.Contains(ar.ApplicationRole.Name) && ar.ApplicationRole.TenantId == tenantId),
                 includeProperties: "Pages.Actions.AppRoleActions.ApplicationRole");
 
-            return Response.Ok(modules.ToList());
+            return ApiResponse<List<Module>>.Success(modules.ToList());
         }
     }
 }
