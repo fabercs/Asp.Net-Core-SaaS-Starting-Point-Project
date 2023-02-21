@@ -62,7 +62,7 @@ namespace EMSApp.Webapi
             var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(locOptions.Value);
 
-            app.SetTenantContextMiddleware();
+            app.AddMultiTenant();
 
             app.UseEnsureMigrations(); //TODO: refactor for development env.
 

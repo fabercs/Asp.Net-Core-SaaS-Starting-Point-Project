@@ -18,14 +18,23 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EMSApp.Infrastructure.Data\EMSApp.Infrastructure.Data.csproj" />
+    <ProjectReference Include="..\EMSApp.Infrastructure.MultiTenancy\EMSApp.Infrastructure.MultiTenancy.csproj" />
     <ProjectReference Include="..\EMSApp.Infrastructure\EMSApp.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Microsoft.EntityFrameworkCore.Design" />
+  </ItemGroup>
 </Project>

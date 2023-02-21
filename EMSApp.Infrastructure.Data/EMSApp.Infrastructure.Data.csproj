@@ -29,6 +29,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EMSApp.Core\EMSApp.Core.csproj" />
+    <ProjectReference Include="..\EMSApp.Infrastructure.MultiTenancy\EMSApp.Infrastructure.MultiTenancy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MultiTenancy" />
   </ItemGroup>
 
 </Project>

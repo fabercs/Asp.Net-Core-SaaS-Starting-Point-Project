@@ -9,7 +9,6 @@ using EMSApp.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using System;
@@ -28,7 +27,7 @@ namespace EMSApp.Core.Services
     public interface IAuthService
     {
         Task<ApiResponse<LoginResponse>> Authenticate(LoginRequest loginRequest);
-        Task<ApiResponse<RegisterResponse>> Register(RegisterRequest resgisterRequest);
+        Task<ApiResponse<RegisterResponse>> Register(RegisterRequest registerRequest);
         Task<ApiResponse<bool>> Verify(Guid tcid, string token);
         Task<ApiResponse<AuthResponse>> ExchangeRefreshToken(ExchangeTokenRequest tokenRequest);
     }
@@ -84,7 +83,8 @@ namespace EMSApp.Core.Services
                 //ErrorProvider.GetError("register_password_mismatch")
             }
 
-            var existingUser = _hostRepository.Get<Tenant>(t => t.Responsibles.Any(r => r.Email == registerRequest.Email)
+            var existingUser = _hostRepository.Get<Tenant>(t => 
+                    t.Responsibles.Any(r => r.Email == registerRequest.Email)
                     , includeProperties: "Responsibles").FirstOrDefault();
 
             if (existingUser != null)
@@ -329,8 +329,8 @@ namespace EMSApp.Core.Services
 
                 await _hostRepository.ExecuteSqlCommand($"CREATE DATABASE {dbName};");
 
-                using var connection = new NpgsqlConnection(connectionString);
-                using var command = new NpgsqlCommand($"{dbScript}", connection);
+                await using var connection = new NpgsqlConnection(connectionString);
+                await using var command = new NpgsqlCommand($"{dbScript}", connection);
                 await connection.OpenAsync();
                 await command.ExecuteNonQueryAsync();
 
@@ -370,7 +370,7 @@ namespace EMSApp.Core.Services
             await Cache.GetOrCreateAsync("tenants", async t =>
             {
                 t.SetSlidingExpiration(TimeSpan.FromMinutes(30));
-                var list = await _hostRepository.GetAsync<Tenant>(t => t.ResourcesCreated);
+                var list = await _hostRepository.GetAsync<Tenant>(te => te.ResourcesCreated);
                 return list.ToList();
             });
         }

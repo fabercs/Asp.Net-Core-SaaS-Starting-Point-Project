@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using Action = EMSApp.Core.Entities.Action;
 
-namespace EMSApp.Infrastructure.Data.Helper
+namespace EMSApp.Infrastructure.Data
 {
     public static class ModelBuilderExtensions
     {

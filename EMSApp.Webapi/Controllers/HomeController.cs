@@ -17,7 +17,7 @@ namespace EMSApp.Webapi.Controllers
             var acceptLang = HttpContext.Request.Headers["Accept-Language"];
             HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "X-Acc-Lang");
             HttpContext.Response.Headers.Add("X-Acc-Lang", acceptLang);
-            return Ok();
+            return Ok(acceptLang.ToString());
         }
     }
 }

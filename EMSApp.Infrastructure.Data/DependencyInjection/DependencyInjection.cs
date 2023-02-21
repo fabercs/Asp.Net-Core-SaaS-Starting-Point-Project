@@ -1,7 +1,6 @@
 ﻿using EMSApp.Core.Entities;
 using EMSApp.Core.Interfaces;
 using EMSApp.Infrastructure.Data.DbContextConfig;
-using EMSApp.Infrastructure.Data.MultiTenancy;
 using EMSApp.Infrastructure.Data.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -33,9 +32,7 @@ namespace EMSApp.Infrastructure.Data.DependencyInjection
             .AddEntityFrameworkStores<EMSHostDbContext>()
             .AddDefaultTokenProviders()
             .AddErrorDescriber<MutliLangErrorDescriber>();
-
-            serviceCollection.AddScoped<ITenantProvider, DatabaseTenantProvider>();
-            serviceCollection.AddScoped<ICurrentTenantContextAccessor, CurrentTenantContextAccessor>();
+            
             serviceCollection.AddScoped(typeof(IDesignTimeDbContextFactory<DbContext>), typeof(EMSAppDbContextFactory));
             serviceCollection.AddScoped(typeof(IAppRepository), typeof(EfRepository<EMSAppDbContext>));
             serviceCollection.AddScoped(typeof(IHostRepository), typeof(EfRepository<EMSHostDbContext>));

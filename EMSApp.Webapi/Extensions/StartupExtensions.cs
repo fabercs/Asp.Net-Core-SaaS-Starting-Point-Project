@@ -11,9 +11,9 @@ namespace EMSApp.Webapi.Extensions
 {
     public static class StartupExtensions
     {
-        public static void SetTenantContextMiddleware(this IApplicationBuilder builder)
+        public static void AddMultiTenant(this IApplicationBuilder builder)
         {
-            builder.UseMiddleware<TenantContextMiddleware>();
+            builder.UseMiddleware<MultiTenantMiddleware>();
         }
         
         //TODO: Move this to Program.cs, only when app launches/re-launches
