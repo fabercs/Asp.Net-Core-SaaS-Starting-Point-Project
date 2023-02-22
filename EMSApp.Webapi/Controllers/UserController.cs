@@ -28,7 +28,7 @@ namespace EMSApp.Webapi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<ApplicationUser>>> GetAll()
         {
-            var response = await _userService.GetAllUsersOfTenant(TenantContext.Tenant.Id);
+            var response = await _userService.GetAllUsersOfTenant((Guid)TenantContext.TenantInfo.Id);
             return response.ToActionResult(this);
         }
 
@@ -50,7 +50,7 @@ namespace EMSApp.Webapi.Controllers
                 NormalizedEmail = request.Email,
                 NormalizedUserName = request.Email,
                 UserName = request.Email,
-                TenantId = TenantContext.Tenant.Id
+                TenantId = (Guid)TenantContext.TenantInfo.Id
             };
             var response = await _userService.Create(applicationUser, request.Password);
             return response.ToActionResult(this);

@@ -12,5 +12,5 @@ public interface IMultiTenantContext<TTenantInfo> where TTenantInfo : ITenantInf
     
     StrategyInfo? StrategyInfo { get; set; }
     
-    StoreInfo<TTenantInfo> StoreInfo { get; set; }
+    StoreInfo<TTenantInfo>? StoreInfo { get; set; }
 }

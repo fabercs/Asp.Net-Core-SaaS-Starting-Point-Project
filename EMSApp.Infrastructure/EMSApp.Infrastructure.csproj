@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EMSApp.Core\EMSApp.Core.csproj" />
+    <ProjectReference Include="..\EMSApp.Infrastructure.MultiTenancy\EMSApp.Infrastructure.MultiTenancy.csproj" />
     <ProjectReference Include="..\EMSApp.Shared\EMSApp.Shared.csproj" />
   </ItemGroup>
 

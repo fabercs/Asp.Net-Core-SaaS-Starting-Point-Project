@@ -7,21 +7,21 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using EMSApp.Infrastructure.MultiTenancy;
 
 namespace EMSApp.Infrastructure.Data.DbContextConfig
 {
     public class EMSAppDbContext : DbContext
     {
-        private readonly Tenant _tenant;
+        private readonly ITenantInfo _tenantInfo;
         public DbSet<Country> Country { get; set; }
         public DbSet<City> City { get; set; }
-
-
+        
         private static MethodInfo ConfigureGlobalFiltersMethodInfo;
 
-        public EMSAppDbContext(DbContextOptions<EMSAppDbContext> options, ITenantProvider tenantProvider) : base(options)
+        public EMSAppDbContext(DbContextOptions<EMSAppDbContext> options, ITenantInfo tenantInfo) : base(options)
         {
-            _tenant = tenantProvider.GetCurrentTenant().Result;
+            _tenantInfo = tenantInfo;
         }
         public EMSAppDbContext(DbContextOptions<EMSAppDbContext> options) : base(options)
         {
@@ -32,9 +32,9 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
         {
             if (!optionsBuilder.IsConfigured)
             {
-                if (_tenant != null)
+                if (_tenantInfo != null && !string.IsNullOrWhiteSpace(_tenantInfo.ConnectionString))
                 {
-                    optionsBuilder.UseNpgsql(_tenant?.ConnectionString);
+                    optionsBuilder.UseNpgsql(_tenantInfo.ConnectionString);
                 }
             }
 
@@ -42,18 +42,15 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if (modelBuilder.Model != null)
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+                if (typeof(IEntity).IsAssignableFrom(entityType.GetType()))
                 {
-                    if (typeof(IEntity).IsAssignableFrom(entityType.GetType()))
-                    {
-                        ConfigureGlobalFiltersMethodInfo
+                    ConfigureGlobalFiltersMethodInfo
                         .MakeGenericMethod(entityType.ClrType)
                         .Invoke(this, new object[] { modelBuilder, entityType });
-                    }
-                    
                 }
+                    
             }
 
             modelBuilder.Entity<Country>().HasNoKey().HasIndex("Code");

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using EMSApp.Infrastructure.MultiTenancy;
 
 namespace EMSApp.Webapi.Filters
 {
@@ -11,11 +12,11 @@ namespace EMSApp.Webapi.Filters
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var tenantContext = context.HttpContext.RequestServices.GetService<ICurrentTenantContextAccessor>();
+            var tenantContext = context.HttpContext.RequestServices.GetService<IMultiTenantContext<TenantInfo>>();
             var errorProvider = context.HttpContext.RequestServices.GetService<IErrorProvider>();
 
-            var tenant = tenantContext?.TenantContext?.Tenant;
-            if (tenant == null)
+            var tenantInfo = tenantContext?.TenantInfo;
+            if (tenantInfo == null)
             {
                 context.Result = new BadRequestObjectResult(new
                 {

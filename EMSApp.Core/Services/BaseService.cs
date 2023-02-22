@@ -13,8 +13,6 @@ namespace EMSApp.Core.Services
         protected ILocalizationService L => _lazyServiceProvider.LazyGetRequiredService<ILocalizationService>();
         protected ILogger<BaseService> Logger => _lazyServiceProvider.LazyGetRequiredService<ILogger<BaseService>>();
         protected IMapper Mapper => _lazyServiceProvider.LazyGetRequiredService<IMapper>();
-        protected ITenantContext TenantContext => 
-            _lazyServiceProvider.LazyGetRequiredService<ICurrentTenantContextAccessor>().TenantContext;
         protected IMemoryCache Cache => _lazyServiceProvider.LazyGetRequiredService<IMemoryCache>();
         protected IAppRepository AppRepository =>
             _lazyServiceProvider.LazyGetRequiredService<IAppRepository>();

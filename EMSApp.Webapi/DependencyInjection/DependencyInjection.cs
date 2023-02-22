@@ -19,7 +19,8 @@ namespace EMSApp.Webapi.DependencyInjection
     {
         public static IServiceCollection AddApiDependencies(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            serviceCollection.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling =
+            serviceCollection.AddControllers()
+                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling =
                 Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             var secretKey = configuration.GetSection("JwtSettings")["SecretKey"];

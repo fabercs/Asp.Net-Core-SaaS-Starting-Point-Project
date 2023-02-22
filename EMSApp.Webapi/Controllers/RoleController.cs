@@ -1,4 +1,5 @@
-﻿using EMSApp.Core.DTO.Requests;
+﻿using System;
+using EMSApp.Core.DTO.Requests;
 using EMSApp.Core.Entities;
 using EMSApp.Core.Services;
 using EMSApp.Shared;
@@ -24,14 +25,14 @@ namespace EMSApp.Webapi.Controllers
         [HttpGet]
         public async Task<ActionResult<List<ApplicationRole>>> GetAll()
         {
-            var response = await _roleService.GetAll();
+            var response = await _roleService.GetAll((Guid)TenantContext.TenantInfo.Id);
             return response.ToActionResult(this);
         }
 
         [HttpPost]
         public async Task<ActionResult<bool>> CreateRole(RoleCreateRequest request)
         {
-            var response = await _roleService.CreateRole(request.RoleName);
+            var response = await _roleService.CreateRole(request.RoleName, (Guid)TenantContext.TenantInfo.Id);
             return response.ToActionResult(this);
         }
 

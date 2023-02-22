@@ -13,7 +13,6 @@ namespace EMSApp.Infrastructure.DependencyInjection
             serviceCollection.AddScoped<IEmailService, EmailService>();
             serviceCollection.AddScoped<IJwtAuthResponseFactory, JwtAuthResponseFactory>();
             serviceCollection.AddScoped<IErrorProvider, LocalizedErrorProvider>();
-
             return serviceCollection;
         }
     }

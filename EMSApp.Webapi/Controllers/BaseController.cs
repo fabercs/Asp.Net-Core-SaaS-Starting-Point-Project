@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EMSApp.Core.Interfaces;
+using EMSApp.Infrastructure.MultiTenancy;
 using EMSApp.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,12 +12,12 @@ namespace EMSApp.Webapi.Controllers
     [Route("api/[controller]")]
     public class BaseController<T> : ControllerBase
     {
-        public ILazyServiceProvider LazyServiceProvider =>
+        private ILazyServiceProvider LazyServiceProvider =>
             HttpContext.RequestServices.GetService<ILazyServiceProvider>();
-
         protected ILogger<T> Logger => LazyServiceProvider.LazyGetService<ILogger<T>>();
         protected IMapper Mapper => LazyServiceProvider.LazyGetService<IMapper>();
-        protected ITenantContext TenantContext => LazyServiceProvider.LazyGetService<ICurrentTenantContextAccessor>().TenantContext;
+        protected IMultiTenantContext<TenantInfo> TenantContext => 
+            LazyServiceProvider.LazyGetService<IMultiTenantContext<TenantInfo>>();
         public BaseController(){}
     }
 }

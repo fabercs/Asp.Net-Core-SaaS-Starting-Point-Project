@@ -28,7 +28,7 @@ namespace EMSApp.Infrastructure.Data.DbContextConfig
 
             var builder = new DbContextOptionsBuilder<EMSAppDbContext>();
 
-            if (args != null && args.Length > 1)
+            if (args is { Length: > 1 })
             {
                 var connectionString = args[1];
                 var tenantId = args[0];

@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
+using EMSApp.Infrastructure.MultiTenancy;
 
 namespace EMSApp.Webapi
 {
@@ -39,6 +41,19 @@ namespace EMSApp.Webapi
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             services.AddCors();
 
+            services.AddMultiTenancy<TenantInfo>()
+                .WithStaticStrategy("ems")
+                .WithInMemoryStore(opt =>
+                    opt.Tenants = new List<TenantInfo>
+                    {
+                        new TenantInfo()
+                        {
+                            Id = Guid.NewGuid(),
+                            Identifier = "ems",
+                            Name = "EMS"
+                        }
+                    });
+                
             services.AddCoreDependencies();
             services.AddInfrastructureDependencies();
             services.AddInfraDataDependencies(Configuration);
@@ -55,22 +70,29 @@ namespace EMSApp.Webapi
             }
             app.UseRouting();
             app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
+            
+            app.UseMultiTenancy();
+            
             app.UseAuthentication();
             app.UseAuthorization();
 
             var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(locOptions.Value);
-
-            app.AddMultiTenant();
-
-            app.UseEnsureMigrations(); //TODO: refactor for development env.
+            
+            //app.UseEnsureMigrations(); //TODO: refactor for development env.
 
             app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                if (!env.IsDevelopment())
+                {
+                    endpoints.MapControllers();
+                }
+                else
+                {
+                    endpoints.MapControllers().AllowAnonymous();
+                }
             });
         }
     }
