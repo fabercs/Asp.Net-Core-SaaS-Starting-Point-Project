@@ -9,7 +9,7 @@ namespace EMSApp.Webapi.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var tenant = TenantContext.TenantInfo;
+            var tenant = TenantContext?.TenantInfo;
             return Ok();
         }
 

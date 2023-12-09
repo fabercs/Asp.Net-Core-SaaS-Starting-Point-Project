@@ -42,17 +42,8 @@ namespace EMSApp.Webapi
             services.AddCors();
 
             services.AddMultiTenancy<TenantInfo>()
-                .WithStaticStrategy("ems")
-                .WithInMemoryStore(opt =>
-                    opt.Tenants = new List<TenantInfo>
-                    {
-                        new TenantInfo()
-                        {
-                            Id = Guid.NewGuid(),
-                            Identifier = "ems",
-                            Name = "EMS"
-                        }
-                    });
+                .WithHeaderStrategy()
+                .WithEfCoreStore();
                 
             services.AddCoreDependencies();
             services.AddInfrastructureDependencies();

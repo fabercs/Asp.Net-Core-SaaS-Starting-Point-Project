@@ -14,13 +14,10 @@ namespace EMSApp.Core.Services
         protected ILogger<BaseService> Logger => _lazyServiceProvider.LazyGetRequiredService<ILogger<BaseService>>();
         protected IMapper Mapper => _lazyServiceProvider.LazyGetRequiredService<IMapper>();
         protected IMemoryCache Cache => _lazyServiceProvider.LazyGetRequiredService<IMemoryCache>();
-        protected IAppRepository AppRepository =>
-            _lazyServiceProvider.LazyGetRequiredService<IAppRepository>();
-        protected IHostRepository HostRepository =>
-            _lazyServiceProvider.LazyGetRequiredService<IHostRepository>();
-        protected IErrorProvider ErrorProvider =>
-            _lazyServiceProvider.LazyGetRequiredService<IErrorProvider>();
-        public BaseService(ILazyServiceProvider serviceProvider)
+        protected IAppRepository AppRepository => _lazyServiceProvider.LazyGetRequiredService<IAppRepository>();
+        protected IHostRepository HostRepository => _lazyServiceProvider.LazyGetRequiredService<IHostRepository>();
+        protected IErrorProvider ErrorProvider => _lazyServiceProvider.LazyGetRequiredService<IErrorProvider>();
+        protected BaseService(ILazyServiceProvider serviceProvider)
         {
             _lazyServiceProvider = serviceProvider;
         }

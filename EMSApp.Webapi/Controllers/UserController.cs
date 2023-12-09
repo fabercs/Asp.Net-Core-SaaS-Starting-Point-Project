@@ -12,17 +12,14 @@ using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
 {
-    [TenantRequired]
     [Authorize]
     public class UserController : BaseController<UserController>
     {
         private readonly IUserService _userService;
-        private readonly IErrorProvider _EP;
 
-        public UserController(IUserService userService, IErrorProvider errorProvider)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _EP = errorProvider;
         }
 
         [HttpGet]

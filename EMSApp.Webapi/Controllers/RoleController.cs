@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace EMSApp.Webapi.Controllers
 {
-    [TenantRequired]
     [Authorize]
     public class RoleController : BaseController<RoleController>
     {
